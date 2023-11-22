@@ -1,4 +1,5 @@
-#include <ProjectIncludes.hpp>
+#include <Grid.hpp>
+#include <Connectivity.hpp>
 
 int main()
 {
@@ -10,5 +11,8 @@ int main()
 	double end_y = 1.0;
 
 	Grid grid(start_x, end_x, start_y, end_y, dx, dy);
+
+	Connectivity connect(grid);
+
 	return 0;
 }

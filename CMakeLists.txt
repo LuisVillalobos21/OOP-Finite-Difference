@@ -21,5 +21,6 @@ include_directories(${CMAKE_SOURCE_DIR}/src)
 add_executable(
 	SOLVER 
 	"src/main.cpp"
-	"common/Grid.cpp")
+	"common/Grid.cpp" 
+	"common/Connectivity.cpp")
 

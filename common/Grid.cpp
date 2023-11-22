@@ -1,6 +1,6 @@
 #include "Grid.hpp"
 
-Grid::Grid(double x1, double x2, double y2, double y1, double dx, double dy)
+Grid::Grid(double x1, double x2, double y1, double y2, double dx, double dy)
 	: dx(dx), dy(dy)
 {
 	nx = static_cast<int>((x2 - x1) / dx) + 1;
