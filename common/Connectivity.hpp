@@ -8,7 +8,6 @@ struct Connectivity {
 	std::vector<int> ID_vector;				// the IDs for all points in the domain
 	std::vector<std::vector<int>> ID_matrix;
 
-	std::vector<int> soln_ID;				// ID arrays for diffrent parts of the solution domain
 	std::vector<int> inner_ID;
 	std::vector<int> left_ID;
 	std::vector<int> right_ID;
@@ -23,8 +22,6 @@ struct Connectivity {
 
 	std::vector<int> neighbor_index;		// neighbor indexing arrays
 
-	std::mt19937 g;
-
 	Connectivity(Grid& grid);
 
 	void constructIDMatrix(int nx, int ny);
@@ -32,4 +29,6 @@ struct Connectivity {
 	void construct_Solution_PointIDs(Grid& grid);
 
 	void constructNeighborIDs();
+
+	void printIDData(std::vector<int> x);
 };

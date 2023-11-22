@@ -17,4 +17,5 @@ struct Grid
 
     void createMeshgrid(const Eigen::VectorXd& x, const Eigen::VectorXd& y);
     void createMeshdata();
+    void printMeshData(std::vector<double> x);
 };

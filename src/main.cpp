@@ -12,7 +12,13 @@ int main()
 
 	Grid grid(start_x, end_x, start_y, end_y, dx, dy);
 
+	grid.printMeshData(grid.X);
+
+	grid.printMeshData(grid.Y);
+
 	Connectivity connect(grid);
+
+	connect.printIDData(connect.top_right_ID);
 
 	return 0;
 }

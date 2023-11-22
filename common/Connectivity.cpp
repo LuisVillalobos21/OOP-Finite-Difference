@@ -38,61 +38,62 @@ void Connectivity::construct_Solution_PointIDs(Grid& grid)
 {
 	int i;
 	int j;
-	for (int i = 1; i < ID_matrix.size() - 1; ++i)		 // all solution points (excluding 
-	{													 // the ACTUAl boundary condition points)
-		for (int j = 1; j < ID_matrix[i].size() - 1; ++j)
-		{
-			soln_ID.push_back(ID_matrix[i][j]);
-		}
-	}
 
-	for (int i = 2; i < ID_matrix.size() - 2; ++i)		// inner solution points 
+	for (int i = 1; i < ID_matrix.size() - 1; ++i)		// inner solution points 
 	{
-		for (int j = 2; j < ID_matrix[i].size() - 2; ++j)
+		for (int j = 1; j < ID_matrix[i].size() - 1; ++j)
 		{
 			inner_ID.push_back(ID_matrix[i][j]);
 		}
 	}
 
-	j = 1;
-	for (int i = 2; i < ID_matrix.size() - 2; ++i)		// left solution points 
+	j = 0;
+	for (int i = 1; i < ID_matrix.size() - 1; ++i)		// left solution points 
 	{
 		left_ID.push_back(ID_matrix[i][j]);
 	}
 
-	j = ID_matrix[1].size() - 2;
-	for (int i = 2; i < ID_matrix.size() - 2; ++i)		// right solution points 
+	j = ID_matrix[1].size() - 1;
+	for (int i = 1; i < ID_matrix.size() - 1; ++i)		// right solution points 
 	{
 		right_ID.push_back(ID_matrix[i][j]);
 	}
 
-	i = 1;
-	for (int j = 2; j < ID_matrix[i].size() - 2; ++j)	// bot solution points 
+	i = 0;
+	for (int j = 1; j < ID_matrix[i].size() - 1; ++j)	// bot solution points 
 	{
 		bot_ID.push_back(ID_matrix[i][j]);
 	}
 
-	i = ID_matrix.size() - 2;
-	for (int j = 2; j < ID_matrix[i].size() - 2; ++j)	// top solution points
+	i = ID_matrix.size() - 1;
+	for (int j = 1; j < ID_matrix[i].size() - 1; ++j)	// top solution points
 	{
 		top_ID.push_back(ID_matrix[i][j]);
 	}
 
-	i = 1;
-	j = 1;
-	bot_left_ID.push_back(ID_matrix[i][j]);				// bot left corner
+	i = 0;
+	j = 0;
+	{
+		bot_left_ID.push_back(ID_matrix[i][j]);				// bot left corner
+	}
 
-	i = 1;
-	j = ID_matrix[1].size() - 2;
-	bot_right_ID.push_back(ID_matrix[i][j]);			// bot right corner
+	i = 0;
+	j = ID_matrix[1].size() - 1;
+	{
+		bot_right_ID.push_back(ID_matrix[i][j]);			// bot right corner
+	}
 
-	i = ID_matrix.size() - 2;
-	j = 1;
-	top_left_ID.push_back(ID_matrix[i][j]);				// top left corner
+	i = ID_matrix.size() - 1;
+	j = 0;
+	{
+		top_left_ID.push_back(ID_matrix[i][j]);				// top left corner
+	}
 
-	i = ID_matrix.size() - 2;
-	j = ID_matrix[1].size() - 2;
-	top_right_ID.push_back(ID_matrix[i][j]);			// top right corner
+	i = ID_matrix.size() - 1;
+	j = ID_matrix[1].size() - 1;
+	{
+		top_right_ID.push_back(ID_matrix[i][j]);			// top right corner
+	}
 }
 
 void Connectivity::constructNeighborIDs()
@@ -119,5 +120,14 @@ void Connectivity::constructNeighborIDs()
 			neighbor_ID.push_back(ID_matrix[i + 1][j]);	// north neighbor
 			k += 1;
 		}
+	}
+}
+
+void Connectivity::printIDData(std::vector<int> x)
+{
+	std::cout << "ID values are: " << '\n';
+	for (auto& value : x)
+	{
+		std::cout << value << '\n';
 	}
 }
