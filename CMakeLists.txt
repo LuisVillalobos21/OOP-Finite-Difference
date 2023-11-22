@@ -13,8 +13,13 @@ set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} /O2")
 
 # Include directories
 include_directories(${EIGEN3_INCLUDE_DIR})
-# include_directories(${CMAKE_SOURCE_DIR}/MAE 560 Project 2/common) 
+include_directories(${CMAKE_SOURCE_DIR}/common) 
+include_directories(${CMAKE_SOURCE_DIR}/src) 
+
 
 # Add your source files
-add_executable(poisson "Solvers/poisson.cpp")
+add_executable(
+	SOLVER 
+	"src/main.cpp"
+	"common/Grid.cpp")
 
