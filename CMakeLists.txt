@@ -22,5 +22,6 @@ add_executable(
 	SOLVER 
 	"src/main.cpp"
 	"common/Grid.cpp" 
-	"common/Connectivity.cpp")
+	"common/Connectivity.cpp" 
+	 "common/LaplacianOperator.cpp" "common/RHS.cpp")
 
