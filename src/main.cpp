@@ -20,6 +20,8 @@ int main()
 
 	RHS rhs(grid);
 
+	rhs.forcingFunction(grid, connect);
+
 	grid.printMeshData(grid.X);
 
 	grid.printMeshData(grid.Y);

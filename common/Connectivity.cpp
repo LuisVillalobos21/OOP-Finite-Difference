@@ -51,48 +51,56 @@ void Connectivity::construct_Solution_PointIDs(Grid& grid)
 	for (int i = 1; i < ID_matrix.size() - 1; ++i)		// left solution points 
 	{
 		left_ID.push_back(ID_matrix[i][j]);
+		boundary_ID.push_back(ID_matrix[i][j]);
 	}
 
 	j = ID_matrix[1].size() - 1;
 	for (int i = 1; i < ID_matrix.size() - 1; ++i)		// right solution points 
 	{
 		right_ID.push_back(ID_matrix[i][j]);
+		boundary_ID.push_back(ID_matrix[i][j]);
 	}
 
 	i = 0;
 	for (int j = 1; j < ID_matrix[i].size() - 1; ++j)	// bot solution points 
 	{
 		bot_ID.push_back(ID_matrix[i][j]);
+		boundary_ID.push_back(ID_matrix[i][j]);
 	}
 
 	i = ID_matrix.size() - 1;
 	for (int j = 1; j < ID_matrix[i].size() - 1; ++j)	// top solution points
 	{
 		top_ID.push_back(ID_matrix[i][j]);
+		boundary_ID.push_back(ID_matrix[i][j]);
 	}
 
 	i = 0;
 	j = 0;
 	{
 		bot_left_ID.push_back(ID_matrix[i][j]);				// bot left corner
+		boundary_ID.push_back(ID_matrix[i][j]);
 	}
 
 	i = 0;
 	j = ID_matrix[1].size() - 1;
 	{
 		bot_right_ID.push_back(ID_matrix[i][j]);			// bot right corner
+		boundary_ID.push_back(ID_matrix[i][j]);
 	}
 
 	i = ID_matrix.size() - 1;
 	j = 0;
 	{
 		top_left_ID.push_back(ID_matrix[i][j]);				// top left corner
+		boundary_ID.push_back(ID_matrix[i][j]);
 	}
 
 	i = ID_matrix.size() - 1;
 	j = ID_matrix[1].size() - 1;
 	{
 		top_right_ID.push_back(ID_matrix[i][j]);			// top right corner
+		boundary_ID.push_back(ID_matrix[i][j]);
 	}
 }
 

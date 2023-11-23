@@ -2,15 +2,17 @@
 #include "ProjectIncludes.hpp"
 #include "Grid.hpp"
 #include "LaplacianOperator.hpp"
+#include "Field.hpp"
 
 struct Grid;
-struct LaplacianOperator;
+class LaplacianOperator;
+struct Field;
 
 struct LHS 
 {
 	std::vector<double> lhs_vector;
 	LHS(Grid& grid);
-	std::vector<double> assembleLHS(Grid& grid, LaplacianOperator& laplace);
+	std::vector<double> assembleLHS(Grid& grid, Connectivity& connect, Field& field, LaplacianOperator& laplace);
 };
 
 

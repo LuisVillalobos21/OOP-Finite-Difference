@@ -5,11 +5,11 @@ LaplacianOperator::LaplacianOperator(Grid& grid)
     laplace_vector.resize(grid.num_points, 0.0);
 }
 
-void LaplacianOperator::calculateOperator(Grid& grid, Connectivity& connect, const std::vector<int>& nodeIDs, std::vector<double>& function_values)
+void LaplacianOperator::calculateOperator(Grid& grid, Connectivity& connect, std::vector<double>& function_values)
 {
     std::fill(laplace_vector.begin(), laplace_vector.end(), 0.0);
     calculateInnerPoints(grid, connect, connect.inner_ID, function_values);
-    calculateBoundaryPoints(grid, connect, connect.inner_ID, function_values); // change this eventually to index over ALL boundary points
+    calculateBoundaryPoints(grid, connect, connect.boundary_ID, function_values);
 }
 void LaplacianOperator::calculateInnerPoints(Grid& grid, Connectivity& connect, const std::vector<int>& nodeIDs, std::vector<double>& function_values)
 {

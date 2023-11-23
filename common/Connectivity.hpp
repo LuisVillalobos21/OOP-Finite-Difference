@@ -9,6 +9,7 @@ struct Connectivity {
 	std::vector<std::vector<int>> ID_matrix;
 
 	std::vector<int> inner_ID;
+	std::vector<int> boundary_ID;
 	std::vector<int> left_ID;
 	std::vector<int> right_ID;
 	std::vector<int> bot_ID;
