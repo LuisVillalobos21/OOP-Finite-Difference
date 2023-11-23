@@ -1,6 +1,7 @@
 #include <Grid.hpp>
 #include <Connectivity.hpp>
 #include <LaplacianOperator.hpp>
+#include <RHS.hpp>
 
 int main()
 {
@@ -16,6 +17,8 @@ int main()
 	Connectivity connect(grid);
 
 	LaplacianOperator laplace(grid);
+
+	RHS rhs(grid);
 
 	grid.printMeshData(grid.X);
 

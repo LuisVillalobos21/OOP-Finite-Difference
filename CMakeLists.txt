@@ -23,5 +23,5 @@ add_executable(
 	"src/main.cpp"
 	"common/Grid.cpp" 
 	"common/Connectivity.cpp" 
-	 "common/LaplacianOperator.cpp" "common/RHS.cpp" "common/Field.cpp")
+	 "common/LaplacianOperator.cpp" "common/RHS.cpp" "common/Field.cpp" "common/ConjugateGradient.cpp" "common/LHS.cpp")
 

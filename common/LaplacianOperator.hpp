@@ -12,7 +12,7 @@ public:
 
     LaplacianOperator(Grid& grid);
 
-    void calculateOperator() override;
+    void calculateOperator(Grid& grid, Connectivity& connect, const std::vector<int>& nodeIDs, std::vector<double>& function_values) override;
     void calculateInnerPoints(Grid& grid, Connectivity& connect, const std::vector<int>& nodeIDs, std::vector<double>& function_values) override;
     void calculateBoundaryPoints(Grid& grid, Connectivity& connect, const std::vector<int>& nodeIDs, std::vector<double>& function_values) override;
 };
