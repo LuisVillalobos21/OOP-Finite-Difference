@@ -5,9 +5,9 @@ LaplacianOperator::LaplacianOperator(Grid& grid)
     laplace_vector.resize(grid.num_points);
 }
 
-void LaplacianOperator::calculateOperator()
+void LaplacianOperator::calculateOperator(Grid& grid, Connectivity& connect, Field& field)
 {
-
+    calculateInnerPoints(grid, connect, connect.inner_ID, );
 }
 void LaplacianOperator::calculateInnerPoints(Grid& grid, Connectivity& connect, const std::vector<int>& nodeIDs, std::vector<double>& function_values)
 {
