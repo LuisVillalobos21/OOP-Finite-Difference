@@ -12,7 +12,7 @@ struct LHS
 {
 	std::vector<double> lhs_vector;
 	LHS(Grid& grid);
-	std::vector<double> assembleLHS(Grid& grid, Connectivity& connect, Field& field, LaplacianOperator& laplace);
+	void assembleLHS(Grid& grid, Connectivity& connect, Field& field, LaplacianOperator& laplace);
 };
 
 

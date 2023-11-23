@@ -1,7 +1,10 @@
-#include <Grid.hpp>
-#include <Connectivity.hpp>
-#include <LaplacianOperator.hpp>
-#include <RHS.hpp>
+#include "Grid.hpp"
+#include "Connectivity.hpp"
+#include "LaplacianOperator.hpp"
+#include "RHS.hpp"
+#include "LHS.hpp"
+#include "Field.hpp"
+#include "ConjugateGradient.hpp"
 
 int main()
 {
@@ -20,15 +23,13 @@ int main()
 
 	RHS rhs(grid);
 
+	LHS lhs(grid);
+
+	Field u_velocity(grid);
+
+	lhs.assembleLHS(grid, connect, u_velocity, laplace);
+
 	rhs.forcingFunction(grid, connect);
-
-	grid.printMeshData(grid.X);
-
-	grid.printMeshData(grid.Y);
-
-	connect.printIDData(connect.top_right_ID);
-
-	connect.printNeighborIDs();
 
 	return 0;
 }
