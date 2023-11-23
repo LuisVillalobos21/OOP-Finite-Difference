@@ -18,9 +18,7 @@ struct Connectivity {
 	std::vector<int> top_left_ID;
 	std::vector<int> top_right_ID;
 
-	std::vector<int> neighbor_ID;			// neighbor arrays 
-
-	std::vector<int> neighbor_index;		// neighbor indexing arrays
+	std::vector<std::vector<int>> neighbor_IDs;			// neighbor arrays 
 
 	Connectivity(Grid& grid);
 
@@ -28,7 +26,9 @@ struct Connectivity {
 
 	void construct_Solution_PointIDs(Grid& grid);
 
-	void constructNeighborIDs();
+	void constructNeighborIDs(Grid& grid);
 
 	void printIDData(std::vector<int> x);
+
+	void Connectivity::printNeighborIDs();
 };

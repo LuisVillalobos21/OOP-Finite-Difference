@@ -9,7 +9,7 @@ Connectivity::Connectivity(Grid& grid)
 	constructIDMatrix(grid.nx, grid.ny);
 
 	construct_Solution_PointIDs(grid);
-	constructNeighborIDs();
+	constructNeighborIDs(grid);
 }
 
 
@@ -96,30 +96,139 @@ void Connectivity::construct_Solution_PointIDs(Grid& grid)
 	}
 }
 
-void Connectivity::constructNeighborIDs()
+void Connectivity::constructNeighborIDs(Grid& grid)
 {
 	int i;
 	int j;
-
 	int k = 0;
-	for (int i = 1; i < ID_matrix.size() - 1; ++i)		// all solution points, edges will have neighbors which point to 
-	{													// fixed boundary bounds
+	neighbor_IDs.resize(grid.num_points);
+
+	for (int i = 1; i < ID_matrix.size() - 1; ++i)		// inner solution points 
+	{
 		for (int j = 1; j < ID_matrix[i].size() - 1; ++j)
 		{
-			neighbor_index.push_back(k);				// this k is the index used to access the neighbors
+			std::vector<int> neighbors;
+			neighbors.push_back(ID_matrix[i][j - 1]);
+			neighbors.push_back(ID_matrix[i][j + 1]);
+			neighbors.push_back(ID_matrix[i - 1][j]);
+			neighbors.push_back(ID_matrix[i + 1][j]);
 
-			neighbor_ID.push_back(ID_matrix[i][j - 1]);	// west neighbor
-			k += 1;
+			int currentNode = ID_matrix[i][j];
 
-			neighbor_ID.push_back(ID_matrix[i][j + 1]);	// east neighbor
-			k += 1;
-
-			neighbor_ID.push_back(ID_matrix[i - 1][j]);; // south neightbor
-			k += 1;
-
-			neighbor_ID.push_back(ID_matrix[i + 1][j]);	// north neighbor
-			k += 1;
+			neighbor_IDs[currentNode] = neighbors;
 		}
+	}
+
+	j = 0;
+	for (int i = 1; i < ID_matrix.size() - 1; ++i)		// left solution points 
+	{
+		std::vector<int> neighbors;
+		neighbors.push_back(-1);
+		neighbors.push_back(ID_matrix[i][j + 1]);
+		neighbors.push_back(ID_matrix[i - 1][j]);
+		neighbors.push_back(ID_matrix[i + 1][j]);
+
+		int currentNode = ID_matrix[i][j];
+
+		neighbor_IDs[currentNode] = neighbors;
+	}
+
+	j = ID_matrix[1].size() - 1;
+	for (int i = 1; i < ID_matrix.size() - 1; ++i)		// right solution points 
+	{
+		std::vector<int> neighbors;
+		neighbors.push_back(ID_matrix[i][j - 1]);
+		neighbors.push_back(-1);
+		neighbors.push_back(ID_matrix[i - 1][j]);
+		neighbors.push_back(ID_matrix[i + 1][j]);
+
+		int currentNode = ID_matrix[i][j];
+
+		neighbor_IDs[currentNode] = neighbors;
+	}
+
+	i = 0;
+	for (int j = 1; j < ID_matrix[i].size() - 1; ++j)	// bot solution points 
+	{
+		std::vector<int> neighbors;
+		neighbors.push_back(ID_matrix[i][j - 1]);
+		neighbors.push_back(ID_matrix[i][j + 1]);
+		neighbors.push_back(-1);
+		neighbors.push_back(ID_matrix[i + 1][j]);
+
+		int currentNode = ID_matrix[i][j];
+
+		neighbor_IDs[currentNode] = neighbors;
+	}
+
+	i = ID_matrix.size() - 1;
+	for (int j = 1; j < ID_matrix[i].size() - 1; ++j)	// top solution points
+	{
+		std::vector<int> neighbors;
+		neighbors.push_back(ID_matrix[i][j - 1]);
+		neighbors.push_back(ID_matrix[i][j + 1]);
+		neighbors.push_back(ID_matrix[i - 1][j]);
+		neighbors.push_back(-1);
+
+		int currentNode = ID_matrix[i][j];
+
+		neighbor_IDs[currentNode] = neighbors;
+	}
+
+	i = 0;
+	j = 0;
+	{
+		std::vector<int> neighbors;							// bot left corner
+		neighbors.push_back(-1);
+		neighbors.push_back(ID_matrix[i][j + 1]);
+		neighbors.push_back(-1);
+		neighbors.push_back(ID_matrix[i + 1][j]);
+
+		int currentNode = ID_matrix[i][j];
+
+		neighbor_IDs[currentNode] = neighbors;			
+	}
+
+	i = 0;
+	j = ID_matrix[1].size() - 1;
+	{
+		std::vector<int> neighbors;							// bot right corner
+		neighbors.push_back(ID_matrix[i][j - 1]);
+		neighbors.push_back(-1);
+		neighbors.push_back(-1);
+		neighbors.push_back(ID_matrix[i + 1][j]);
+
+		int currentNode = ID_matrix[i][j];
+
+		neighbor_IDs[currentNode] = neighbors;
+	}
+
+	i = ID_matrix.size() - 1;
+	j = 0;
+	{
+		std::vector<int> neighbors;							// top left corner
+		neighbors.push_back(-1);	
+		neighbors.push_back(ID_matrix[i][j + 1]);
+		neighbors.push_back(ID_matrix[i - 1][j]);
+		neighbors.push_back(-1);
+
+		int currentNode = ID_matrix[i][j];
+
+		neighbor_IDs[currentNode] = neighbors;
+	}
+
+	i = ID_matrix.size() - 1;
+	j = ID_matrix[1].size() - 1;
+	{
+		std::vector<int> neighbors;							// top right corner
+		neighbors.push_back(ID_matrix[i][j - 1]);
+		neighbors.push_back(-1);
+		neighbors.push_back(ID_matrix[i - 1][j]);
+		neighbors.push_back(-1);
+
+		int currentNode = ID_matrix[i][j];
+
+		neighbor_IDs[currentNode] = neighbors;
 	}
 }
 
@@ -129,5 +238,18 @@ void Connectivity::printIDData(std::vector<int> x)
 	for (auto& value : x)
 	{
 		std::cout << value << '\n';
+	}
+}
+
+void Connectivity::printNeighborIDs()
+{
+	std::cout << "Neighbor IDs are: ";
+	for (auto& ID : neighbor_IDs)
+	{
+		for (auto& neighbor : ID)
+		{
+			std::cout << neighbor << ", ";
+		}
+		std::cout << '\n';
 	}
 }
