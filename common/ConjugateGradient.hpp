@@ -1,9 +1,7 @@
 #pragma once
 #include "ProjectIncludes.hpp"
-#include "LHS.hpp"
-#include "RHS.hpp"
 
 double dotProduct(std::vector<double>& x, std::vector<double>& y);
 
-std::vector<double> ConjugateGradient(LHS& lhs, RHS& rhs, double tolerance);
+std::vector<double> ConjugateGradient(std::vector<double> b, double tolerance, std::function<void()> assembleLHSFunc);
 

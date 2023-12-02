@@ -3,6 +3,7 @@
 
 struct Grid;
 struct Connectivity;
+struct RHS;
 
 class Operator 
 {

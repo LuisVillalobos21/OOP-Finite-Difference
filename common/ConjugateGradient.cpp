@@ -14,27 +14,34 @@ double dotProduct(std::vector<double>& x, std::vector<double>& y)
     return dotProduct;
 }
 
-std::vector<double> ConjugateGradient(LHS& lhs, RHS& rhs, double tolerance) {
-    std::vector<double> x(rhs.rhs_vector.size(), 0.0); 
-    std::vector<double> r = rhs.rhs_vector; 
-    std::vector<double> d = r; 
+std::vector<double> ConjugateGradient(const std::vector<double>& b, double tolerance, std::function<void(std::vector<double>&)> assembleLHSFunc)
+{
+    std::vector<double> x(b.size(), 0.0);
+    std::vector<double> r = b;
+    std::vector<double> d = r;
+    std::vector<double> lhs_vector(b.size());
 
-    double delta_new = dotProduct(r, r); 
+    double delta_new = dotProduct(r, r);
     double delta_0 = delta_new;
 
-    for (int i = 0; i < rhs.rhs_vector.size(); ++i)
+    for (size_t i = 0; i < b.size(); ++i)
     {
-        //lhs.assembleLHS(grid, connect, field, laplace);
+        assembleLHSFunc(d);
 
-        double alpha = delta_new / dotProduct(d, lhs.lhs_vector); 
-        for (size_t j = 0; j < x.size(); ++j) 
+        double denom = dotProduct(d, lhs_vector);
+        if (denom == 0.0) {
+            break;
+        }
+        double alpha = delta_new / denom;
+
+        for (size_t j = 0; j < x.size(); ++j)
         {
-            x[j] += alpha * d[j]; 
-            r[j] -= alpha * lhs.lhs_vector[j]; 
+            x[j] += alpha * d[j];
+            r[j] -= alpha * lhs_vector[j];
         }
 
         double delta_old = delta_new;
-        delta_new = dotProduct(r, r); 
+        delta_new = dotProduct(r, r);
 
         std::cout << "Iteration " << i + 1 << ", Residual norm: " << sqrt(delta_new) << std::endl;
 
@@ -43,12 +50,12 @@ std::vector<double> ConjugateGradient(LHS& lhs, RHS& rhs, double tolerance) {
             break;
         }
 
-        double beta = delta_new / delta_old; 
-        for (size_t j = 0; j < d.size(); ++j) 
+        double beta = delta_new / delta_old;
+        for (size_t j = 0; j < d.size(); ++j)
         {
-            d[j] = r[j] + beta * d[j]; 
+            d[j] = r[j] + beta * d[j];
         }
     }
 
-    return x; 
+    return x;
 }

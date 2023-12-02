@@ -1,9 +1,6 @@
 #include "Grid.hpp"
 #include "Connectivity.hpp"
 #include "LaplacianOperator.hpp"
-#include "RHS.hpp"
-#include "LHS.hpp"
-#include "Field.hpp"
 #include "ConjugateGradient.hpp"
 
 int main()
@@ -21,15 +18,7 @@ int main()
 
 	LaplacianOperator laplace(grid);
 
-	RHS rhs(grid);
-
-	LHS lhs(grid);
-
-	Field u_velocity(grid);
-
-	lhs.assembleLHS(grid, connect, u_velocity, laplace);
-
-	rhs.forcingFunction(grid, connect);
+	//ConjugateGradient(, , 1e-3, [&]() { ; });
 
 	return 0;
 }
