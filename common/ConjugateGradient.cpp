@@ -14,7 +14,7 @@ double dotProduct(std::vector<double>& x, std::vector<double>& y)
     return dotProduct;
 }
 
-std::vector<double> ConjugateGradient(const std::vector<double>& b, double tolerance, std::function<void(std::vector<double>&)> assembleLHSFunc)
+std::vector<double> ConjugateGradient(std::vector<double>& b, double tolerance, std::function<void(std::vector<double>&)> assembleLHSFunc)
 {
     std::vector<double> x(b.size(), 0.0);
     std::vector<double> r = b;
