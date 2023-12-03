@@ -5,7 +5,7 @@
 
 double dotProduct(std::vector<double>& x, std::vector<double>& y);
 
-std::vector<double> operator-(const std::vector<double>& lhs, const std::vector<double>& rhs);
+double dotProduct(std::vector<double>& x, std::vector<double>& y);
 
 std::vector<double> ConjugateGradient(
     LaplacianOperator& laplaceOperator,

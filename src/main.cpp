@@ -1,5 +1,6 @@
 #include "Grid.hpp"
 #include "Connectivity.hpp"
+#include "GenericOperator.hpp"
 #include "LaplacianOperator.hpp"
 #include "ConjugateGradient.hpp"
 
@@ -47,14 +48,12 @@ std::vector<std::vector<double>> collectResults(std::vector<double>& x, std::vec
 	return results;
 }
 
-
-
 int main()
 {
-	double tolerance = 1e-3;
+	double tolerance = 1e-4;
 
-	double dx = 0.001;
-	double dy = 0.001;
+	double dx = 0.005;
+	double dy = 0.005;
 	double start_x = 0.0;
 	double end_x = 1.0;
 	double start_y = 0.0;

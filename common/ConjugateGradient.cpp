@@ -14,19 +14,16 @@ double dotProduct(std::vector<double>& x, std::vector<double>& y)
     return dotProduct;
 }
 
-std::vector<double> operator-(const std::vector<double>& lhs, const std::vector<double>& rhs) 
+void subtractArrays(std::vector<double>& result, const std::vector<double>& lhs, const std::vector<double>& rhs)
 {
-    if (lhs.size() != rhs.size())
-    {
+    if (lhs.size() != rhs.size()) {
         throw std::invalid_argument("Vectors must be of the same size to subtract");
     }
 
-    std::vector<double> result(lhs.size());
-    for (size_t i = 0; i < lhs.size(); ++i) 
+    for (size_t i = 0; i < lhs.size(); ++i)
     {
         result[i] = lhs[i] - rhs[i];
     }
-    return result;
 }
 
 std::vector<double> ConjugateGradient(
@@ -38,7 +35,11 @@ std::vector<double> ConjugateGradient(
     std::vector<std::vector<int>>& boundaryIDs,
     std::vector<double>& x) 
 {
-    std::vector<double> r = b - laplaceOperator.calculateOperator(grid, connect, boundaryIDs, x);
+    std::vector<double> r;
+    std::vector<double> q;
+    r.resize(grid.num_points);
+    q.resize(grid.num_points);
+    subtractArrays(r, b, laplaceOperator.calculateOperator(grid, connect, boundaryIDs, x));
     std::vector<double> d = r;
     double delta_new = dotProduct(r, r);
     double delta_0 = delta_new;
@@ -47,7 +48,7 @@ std::vector<double> ConjugateGradient(
     size_t i = 0; 
     while (i < b.size())
     {
-        std::vector<double> q = laplaceOperator.calculateOperator(grid, connect, boundaryIDs, d);
+        q = laplaceOperator.calculateOperator(grid, connect, boundaryIDs, d);
 
         double alpha = delta_new / dotProduct(d, q);
 
@@ -58,7 +59,7 @@ std::vector<double> ConjugateGradient(
 
         if (i % 50 == 0) 
         {
-            r = b - laplaceOperator.calculateOperator(grid, connect, boundaryIDs, x);
+            subtractArrays(r, b, laplaceOperator.calculateOperator(grid, connect, boundaryIDs, x));
         }
         else
         {
