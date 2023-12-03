@@ -1,45 +1,31 @@
 #pragma once
 #include "ProjectIncludes.hpp"
 
-// Boundary condition interface
 struct IBoundaryCondition {
     virtual ~IBoundaryCondition() {}
     virtual std::pair<double, double> returnBCValue(int nodeID, const std::vector<double>& function_values, const std::vector<int>& neighbors) = 0;
 };
 
-// Dirichlet boundary condition
 struct DirichletCondition : IBoundaryCondition {
-    double fixedValue;
+    double boundary_value;
+    int boundary_flag;
 
-    DirichletCondition(double value) : fixedValue(value) {}
-
-    virtual std::pair<double, double> returnBCValue(int nodeID, const std::vector<double>& function_values, const std::vector<int>& neighbors) override {
-        return { fixedValue, 0.0 }; // Return fixed value for rhs_value and 0.0 for operator value
-    }
+    DirichletCondition(double value, double flag);
+    virtual std::pair<double, double> returnBCValue(int nodeID, const std::vector<double>& function_values, const std::vector<int>& neighbors) override;
 };
 
-// Neumann boundary condition
 struct NeumannCondition : IBoundaryCondition {
-    // Specific properties and methods for NeumannCondition
-    double boundaryValue;
+    double boundary_value;
+    int boundary_flag;
 
-    NeumannCondition(double value) : boundaryValue(value) {}
-
-    virtual std::pair<double, double> returnBCValue(int nodeID, const std::vector<double>& function_values, const std::vector<int>& neighbors) override {
-        double rhs_value = /* logic for calculating rhs_value based on Neumann condition */;
-        double operator_value = /* logic for calculating operator_value based on Neumann condition */;
-
-        return { rhs_value, operator_value };
-    }
+    NeumannCondition(double value, double flag);
+    virtual std::pair<double, double> returnBCValue(int nodeID, const std::vector<double>& function_values, const std::vector<int>& neighbors) override;
 };
 
-// BoundaryCondition class with a strategy pattern
 struct BoundaryCondition {
     IBoundaryCondition* strategy;
+    int boundary_flag;
 
-    BoundaryCondition(IBoundaryCondition* strategy) : strategy(strategy) {}
-
-    std::pair<double, double> returnBCValue(int nodeID, const std::vector<double>& function_values, const std::vector<int>& neighbors) {
-        return strategy->returnBCValue(nodeID, function_values, neighbors);
-    }
+    BoundaryCondition(IBoundaryCondition* strategy, double flag);
+    std::pair<double, double> returnBCValue(int nodeID, const std::vector<double>& function_values, const std::vector<int>& neighbors);
 };

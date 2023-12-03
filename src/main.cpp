@@ -3,6 +3,7 @@
 #include "GenericOperator.hpp"
 #include "LaplacianOperator.hpp"
 #include "ConjugateGradient.hpp"
+#include "BoundaryCondition.hpp"
 
 std::vector<double> rhsForcing(const Grid& grid, const Connectivity& connect)
 {
@@ -78,6 +79,25 @@ int main()
 	LaplacianOperator laplace(grid);
 
 	std::vector<double> RHS = rhsForcing(grid, connect);
+
+	// Create a Dirichlet boundary condition
+	double dirichletValue = -5.0; 
+	int dirichletFlag = -2; 
+	DirichletCondition dirichletCondition(dirichletValue, dirichletFlag);
+	BoundaryCondition boundaryCondition(&dirichletCondition, dirichletFlag);
+
+	// Create a Neumann boundary condition
+	//double neumannValue = 3.0; 
+	//int neumannFlag = 2.0; 
+	//NeumannCondition neumannCondition(neumannValue, neumannFlag);
+	//BoundaryCondition boundaryCondition(&neumannCondition, neumannFlag);
+
+	laplace.applyBoundaryCondition(grid, connect, connect.boundary_ID, pressure, boundaryCondition);
+
+	for (int i = 0; i < RHS.size(); ++i)
+	{
+		RHS[i] += laplace.rhs_vector[i];
+	}
 
 	std::vector<double> solution = ConjugateGradient(
 		laplace,
