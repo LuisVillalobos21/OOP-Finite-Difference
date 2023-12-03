@@ -32,14 +32,14 @@ std::vector<double> ConjugateGradient(
     double tolerance,
     Grid& grid,
     Connectivity& connect,
-    std::vector<std::vector<int>>& boundaryIDs,
+    std::vector<BoundaryCondition>& BC_struct_vector,
     std::vector<double>& x) 
 {
     std::vector<double> r;
     std::vector<double> q;
     r.resize(grid.num_points);
     q.resize(grid.num_points);
-    subtractArrays(r, b, laplaceOperator.calculateOperator(grid, connect, boundaryIDs, x));
+    subtractArrays(r, b, laplaceOperator.calculateOperator(grid, connect, BC_struct_vector, x));
     std::vector<double> d = r;
     double delta_new = dotProduct(r, r);
     double delta_0 = delta_new;
@@ -48,7 +48,7 @@ std::vector<double> ConjugateGradient(
     size_t i = 0; 
     while (i < b.size())
     {
-        q = laplaceOperator.calculateOperator(grid, connect, boundaryIDs, d);
+        q = laplaceOperator.calculateOperator(grid, connect, BC_struct_vector, d);
 
         double alpha = delta_new / dotProduct(d, q);
 
@@ -59,7 +59,7 @@ std::vector<double> ConjugateGradient(
 
         if (i % 50 == 0) 
         {
-            subtractArrays(r, b, laplaceOperator.calculateOperator(grid, connect, boundaryIDs, x));
+            subtractArrays(r, b, laplaceOperator.calculateOperator(grid, connect, BC_struct_vector, x));
         }
         else
         {

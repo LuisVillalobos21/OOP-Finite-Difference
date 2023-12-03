@@ -6,17 +6,17 @@ LaplacianOperator::LaplacianOperator(Grid& grid)
     rhs_vector.resize(grid.num_points, 0.0); 
 }
 
-std::vector<double> LaplacianOperator::calculateOperator(Grid& grid, Connectivity& connect, std::vector<std::vector<int>>& boundaryIDs, std::vector<double>& function_values)
+std::vector<double> LaplacianOperator::calculateOperator(Grid& grid, Connectivity& connect, std::vector<BoundaryCondition>& BC_vector, std::vector<double>& function_values)
 {
     std::fill(laplace_vector.begin(), laplace_vector.end(), 0.0);
+    std::fill(rhs_vector.begin(), rhs_vector.end(), 0.0);
     calculateInnerPoints(grid, connect, function_values);
-     
-    for (int i = 0; i < boundaryIDs.size(); ++i)
-    {
-        std::vector<int>& boundary = boundaryIDs[i];
-        calculateBoundaryPoints(grid, connect, boundary, function_values);
-    }
+    calculateBoundaryPoints(grid, connect, function_values);
 
+    for (int i = 0; i < BC_vector.size(); ++i)
+    {
+        applyBoundaryCondition(grid, connect, connect.boundary_ID, function_values, BC_vector[i]);
+    }
     return laplace_vector;
 }
 
@@ -44,13 +44,13 @@ void LaplacianOperator::calculateInnerPoints(Grid& grid, Connectivity& connect, 
     }
 }
 
-void LaplacianOperator::calculateBoundaryPoints(Grid& grid, Connectivity& connect, const std::vector<int>& nodeIDs, std::vector<double>& function_values)
+void LaplacianOperator::calculateBoundaryPoints(Grid& grid, Connectivity& connect, std::vector<double>& function_values)
 {
     double invdx2 = 1.0 / (grid.dx * grid.dx);
     double invdy2 = 1.0 / (grid.dy * grid.dy);
     std::vector<double> invD = { invdx2, invdx2, invdy2, invdy2 };
 
-    for (const auto& nodeID : nodeIDs)
+    for (const auto& nodeID : connect.boundary_ID)
     {
         const std::vector<int>& neighbors = connect.neighbor_IDs[nodeID];
 
@@ -75,9 +75,12 @@ void LaplacianOperator::calculateBoundaryPoints(Grid& grid, Connectivity& connec
 
 void LaplacianOperator::applyBoundaryCondition(Grid& grid, Connectivity& connect, const std::vector<int>& nodeIDs, std::vector<double>& function_values, BoundaryCondition& BC)
 {
+    std::fill(rhs_vector.begin(), rhs_vector.end(), 0.0);
     double invdx2 = 1.0 / (grid.dx * grid.dx);
     double invdy2 = 1.0 / (grid.dy * grid.dy);
     std::vector<double> invD = { invdx2, invdx2, invdy2, invdy2 };
+    std::vector<double> signNeumann = { 1.0, -1.0, 1.0, -1.0 };
+    std::vector<double> invhNeumann = { grid.dx, grid.dx, grid.dy, grid.dy };
 
     for (const auto& nodeID : nodeIDs)
     {
@@ -91,7 +94,7 @@ void LaplacianOperator::applyBoundaryCondition(Grid& grid, Connectivity& connect
             if (neighborID == BC.boundary_flag) {
                 std::tie(rhs_value, operator_value) = BC.returnBCValue(nodeID, function_values, neighbors);
 
-                rhs_vector[nodeID] -= invD[i] * rhs_value;
+                rhs_vector[nodeID] += invD[i] * invhNeumann[i] * signNeumann[i] * rhs_value;
                 laplace_vector[nodeID] += invD[i] * operator_value;
                 ++i;
                 continue;

@@ -13,6 +13,6 @@ std::vector<double> ConjugateGradient(
     double tolerance,
     Grid& grid,
     Connectivity& connect,
-    std::vector<std::vector<int>>& boundaryIDs,
+    std::vector<BoundaryCondition>& BC_struct_vector,
     std::vector<double>& function_values);
 

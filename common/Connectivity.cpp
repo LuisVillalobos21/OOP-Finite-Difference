@@ -176,7 +176,7 @@ void Connectivity::constructNeighborIDs(Grid& grid)
 		neighbors.push_back(ID_matrix[i][j - 1]);
 		neighbors.push_back(ID_matrix[i][j + 1]);
 		neighbors.push_back(ID_matrix[i - 1][j]);
-		neighbors.push_back(-1);
+		neighbors.push_back(-2);
 
 		int currentNode = ID_matrix[i][j];
 
@@ -218,7 +218,7 @@ void Connectivity::constructNeighborIDs(Grid& grid)
 		neighbors.push_back(-1);	
 		neighbors.push_back(ID_matrix[i][j + 1]);
 		neighbors.push_back(ID_matrix[i - 1][j]);
-		neighbors.push_back(-1);
+		neighbors.push_back(-2);
 
 		int currentNode = ID_matrix[i][j];
 
@@ -232,7 +232,7 @@ void Connectivity::constructNeighborIDs(Grid& grid)
 		neighbors.push_back(ID_matrix[i][j - 1]);
 		neighbors.push_back(-1);
 		neighbors.push_back(ID_matrix[i - 1][j]);
-		neighbors.push_back(-1);
+		neighbors.push_back(-2);
 
 		int currentNode = ID_matrix[i][j];
 
