@@ -1,7 +1,6 @@
 #include "Grid.hpp"
 #include "Connectivity.hpp"
 #include "GenericOperator.hpp"
-#include "LaplacianOperator.hpp"
 #include "ConjugateGradient.hpp"
 #include "BoundaryCondition.hpp"
 
@@ -53,14 +52,17 @@ std::vector<std::vector<double>> collectResults(std::vector<double>& x, std::vec
 
 int main()
 {
-	double dx = 0.1;
-	double dy = 0.1;
+	double dx = 0.01;
+	double dy = 0.01;
 	double start_x = 0.0;
 	double end_x = 1.0;
 	double start_y = 0.0;
 	double end_y = 1.0;
 
-	Grid grid(start_x, end_x, start_y, end_y, dx, dy);
+	double dt = 0.01;
+	double nu = 0.0000009516; // water at 72 f
+
+	Grid grid(start_x, end_x, start_y, end_y, dx, dy, dt, nu);
 
 	std::vector<double> u_velocity;
 	std::vector<double> v_velocity;
@@ -86,7 +88,7 @@ int main()
 	//BoundaryCondition boundaryCondition2(&dirichletCondition2, dirichletFlag2);
 
 	//Create a Neumann boundary condition
-	double neumannValue = 0.0; 
+	double neumannValue = 0.1; 
 	int neumannFlag = -2; 
 	NeumannCondition neumannCondition(neumannValue, neumannFlag);
 	BoundaryCondition boundaryCondition2(&neumannCondition, neumannFlag);
@@ -108,7 +110,7 @@ int main()
 		}
 	}
 
-	double tolerance = 1e-9;
+	double tolerance = 1e-4;
 
 	std::vector<double> solution = ConjugateGradient(
 		laplace,

@@ -79,8 +79,6 @@ void LaplacianOperator::applyBoundaryCondition(Grid& grid, Connectivity& connect
     double invdx2 = 1.0 / (grid.dx * grid.dx);
     double invdy2 = 1.0 / (grid.dy * grid.dy);
     std::vector<double> invD = { invdx2, invdx2, invdy2, invdy2 };
-    std::vector<double> signNeumann = { 1.0, -1.0, 1.0, -1.0 };
-    std::vector<double> invhNeumann = { grid.dx, grid.dx, grid.dy, grid.dy };
 
     for (const auto& nodeID : nodeIDs)
     {
@@ -92,9 +90,9 @@ void LaplacianOperator::applyBoundaryCondition(Grid& grid, Connectivity& connect
         for (const auto& neighborID : neighbors)
         {
             if (neighborID == BC.boundary_flag) {
-                std::tie(rhs_value, operator_value) = BC.returnBCValue(nodeID, function_values, neighbors);
+                std::tie(rhs_value, operator_value) = BC.returnBCValue(grid, nodeID, function_values, i);
 
-                rhs_vector[nodeID] += invD[i] * invhNeumann[i] * signNeumann[i] * rhs_value;
+                rhs_vector[nodeID] += invD[i] * rhs_value;
                 laplace_vector[nodeID] += invD[i] * operator_value;
                 ++i;
                 continue;

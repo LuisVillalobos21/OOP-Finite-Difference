@@ -1,7 +1,7 @@
 #include "Grid.hpp"
 
-Grid::Grid(double x1, double x2, double y1, double y2, double dx, double dy)
-	: dx(dx), dy(dy)
+Grid::Grid(double x1, double x2, double y1, double y2, double dx, double dy, double dt, double nu)
+	: dx(dx), dy(dy), dt(dt), nu(nu)
 {
 	nx = static_cast<int>((x2 - x1) / dx) - 1;
 	ny = static_cast<int>((y2 - y1) / dy) - 1;
