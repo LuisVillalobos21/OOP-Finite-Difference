@@ -63,7 +63,8 @@ void Gradient2Order::calculateBoundaryPoints(Grid& grid, Connectivity& connect, 
         int i = 0;
         for (const auto& neighborID : neighbors)
         {
-            if (neighborID < 0) {
+            if (neighborID < 0) 
+            {
                 ++i;
                 continue;
             }
