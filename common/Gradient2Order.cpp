@@ -54,7 +54,7 @@ void Gradient2Order::calculateBoundaryPoints(Grid& grid, Connectivity& connect, 
     std::vector<double> invD_x = { -invdx, invdx, 0.0, 0.0 };
     std::vector<double> invD_y = { 0.0, 0.0, -invdy, invdy };
 
-    for (const auto& nodeID : connect.inner_ID)
+    for (const auto& nodeID : connect.boundary_ID)
     {
         const std::vector<int>& neighbors = connect.neighbor_IDs[nodeID];
 
@@ -84,8 +84,9 @@ void Gradient2Order::applyBoundaryCondition(Grid& grid, Connectivity& connect, c
     double invdy = 0.5 / grid.dy;
     std::vector<double> invD_x = { -invdx, invdx, 0.0, 0.0 };
     std::vector<double> invD_y = { 0.0, 0.0, -invdy, invdy };
+    std::vector<int> opposite = {1, 0, 3, 2};
 
-    for (const auto& nodeID : connect.inner_ID)
+    for (const auto& nodeID : nodeIDs)
     {
         const std::vector<int>& neighbors = connect.neighbor_IDs[nodeID];
 
@@ -95,10 +96,12 @@ void Gradient2Order::applyBoundaryCondition(Grid& grid, Connectivity& connect, c
         {
             if (neighborID == BC.boundary_flag)
             {
-                std::tie(rhs_value, operator_value) = BC.returnBCValue(grid, nodeID, function_values, i);
+                //std::tie(rhs_value, operator_value) = BC.returnBCValue(grid, nodeID, function_values, i);
 
-                gradient_vector_x[nodeID] += invD_x[i] * (operator_value + rhs_value);
-                gradient_vector_y[nodeID] += invD_y[i] * (operator_value + rhs_value);
+                //gradient_vector_x[nodeID] += sign[i] * invD_x[i] * (2 * function_values[nodeID]) + sign_opp[i] * invD_x[i] * function_values[neighbors[opposite[i]]];
+                gradient_vector_y[nodeID] += invD_y[i] * ((2 * function_values[nodeID]) - function_values[neighbors[opposite[i]]]);
+                //gradient_vector_x[nodeID] += gradient_vector_x[neighbors[opposite[i]]];
+                //gradient_vector_y[nodeID] += gradient_vector_y[neighbors[opposite[i]]];
                 ++i;
                 continue;
             }

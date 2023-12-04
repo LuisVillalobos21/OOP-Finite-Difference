@@ -122,7 +122,13 @@ int main()
 		pressure
 	);
 
-	std::vector<std::vector<double>> results = collectResults(grid.X, grid.Y, solution);
+	Gradient2Order grad2(grid);
+
+	std::vector<double> gradX;
+	std::vector<double> gradY;
+	std::tie(gradX, gradY) = grad2.calculateOperator(grid, connect, bc_struct_vector, pressure);
+
+	std::vector<std::vector<double>> results = collectResults(grid.X, grid.Y, gradY);
 
 	csvOut(results, "results.csv");
 

@@ -7,6 +7,6 @@ struct GenericOperator
 {
     LaplacianOperator laplace;
     
-
+    Gradient2Order grad2;
 
 };
