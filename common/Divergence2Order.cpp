@@ -1,34 +1,31 @@
-#include "AdvectionOperator.hpp"
+#include "Divergence2Order.hpp"
 
-
-AdvectionOperator::AdvectionOperator(Grid& grid)
+Divergence2Order::Divergence2Order(Grid& grid)
 {
-	advection_vector.resize(grid.num_points, 0.0);
+	divergence_vector.resize(grid.num_points, 0.0);
 }
 
-std::vector<double> AdvectionOperator::calculateOperator(Grid& grid,
+std::vector<double> Divergence2Order::calculateOperator(Grid& grid,
     Connectivity& connect,
     std::vector<BoundaryCondition>& BC_vector,
     std::vector<double>& u_values,
-    std::vector<double>& v_values,
-    std::vector<double>& quantity)
+    std::vector<double>& v_values)
 {
-    std::fill(advection_vector.begin(), advection_vector.end(), 0.0);
-    calculateInnerPoints(grid, connect, u_values, v_values, quantity);
-    calculateBoundaryPoints(grid, connect, u_values, v_values, quantity);
+    std::fill(divergence_vector.begin(), divergence_vector.end(), 0.0);
+    calculateInnerPoints(grid, connect, u_values, v_values);
+    calculateBoundaryPoints(grid, connect, u_values, v_values);
 
     for (int i = 0; i < BC_vector.size(); ++i)
     {
-        applyBoundaryCondition(grid, connect, connect.boundary_ID, u_values, v_values, quantity, BC_vector[i]);
+        applyBoundaryCondition(grid, connect, connect.boundary_ID, u_values, v_values, BC_vector[i]);
     }
-    return advection_vector;
+    return divergence_vector;
 }
 
-void AdvectionOperator::calculateInnerPoints(Grid& grid,
+void Divergence2Order::calculateInnerPoints(Grid& grid,
     Connectivity& connect,
     std::vector<double>& u_values,
-    std::vector<double>& v_values,
-    std::vector<double>& quantity)
+    std::vector<double>& v_values)
 {
     double invdx = 0.5 / grid.dx;
     double invdy = 0.5 / grid.dy;
@@ -39,25 +36,24 @@ void AdvectionOperator::calculateInnerPoints(Grid& grid,
     {
         const std::vector<int>& neighbors = connect.neighbor_IDs[nodeID];
 
-        double advection_value = 0.0;
+        double div_value = 0.0;
         int i = 0;
         for (const auto& neighborID : neighbors)
         {
-            advection_value += invD_x[i] * u_values[nodeID] * quantity[neighborID];
-            advection_value += invD_y[i] * v_values[nodeID] * quantity[neighborID];
+            div_value += invD_x[i] * u_values[neighborID];
+            div_value += invD_y[i] * v_values[neighborID];
 
             ++i;
         }
 
-        advection_vector[nodeID] = advection_value;
+        divergence_vector[nodeID] = div_value;
     }
 }
 
-void AdvectionOperator::calculateBoundaryPoints(Grid& grid,
+void Divergence2Order::calculateBoundaryPoints(Grid& grid,
     Connectivity& connect,
     std::vector<double>& u_values,
-    std::vector<double>& v_values,
-    std::vector<double>& quantity)
+    std::vector<double>& v_values)
 {
     double invdx = 0.5 / grid.dx;
     double invdy = 0.5 / grid.dy;
@@ -68,7 +64,7 @@ void AdvectionOperator::calculateBoundaryPoints(Grid& grid,
     {
         const std::vector<int>& neighbors = connect.neighbor_IDs[nodeID];
 
-        double advection_value = 0.0;
+        double div_value = 0.0;
         int i = 0;
         for (const auto& neighborID : neighbors)
         {
@@ -78,42 +74,40 @@ void AdvectionOperator::calculateBoundaryPoints(Grid& grid,
                 continue;
             }
 
-            advection_value += invD_x[i] * u_values[nodeID] * quantity[neighborID];
-            advection_value += invD_y[i] * v_values[nodeID] * quantity[neighborID];
+            div_value += invD_x[i] * u_values[neighborID];
+            div_value += invD_y[i] * v_values[neighborID];
 
             ++i;
         }
-        advection_vector[nodeID] = advection_value;
+        divergence_vector[nodeID] = div_value;
     }
 }
 
-void AdvectionOperator::applyBoundaryCondition(Grid& grid,
+void Divergence2Order::applyBoundaryCondition(Grid& grid,
     Connectivity& connect,
     const std::vector<int>& nodeIDs,
     std::vector<double>& u_values,
     std::vector<double>& v_values,
-    std::vector<double>& quantity,
     BoundaryCondition& BC)
 {
     double invdx = 0.5 / grid.dx;
     double invdy = 0.5 / grid.dy;
     std::vector<double> invD_x = { -invdx, invdx, 0.0, 0.0 };
     std::vector<double> invD_y = { 0.0, 0.0, -invdy, invdy };
+    std::vector<int> opposite = { 1, 0, 3, 2 };
 
     for (const auto& nodeID : nodeIDs)
     {
         const std::vector<int>& neighbors = connect.neighbor_IDs[nodeID];
 
-        double rhs_value, operator_value;
+        double div_value = 0.0;
         int i = 0;
         for (const auto& neighborID : neighbors)
         {
             if (neighborID == BC.boundary_flag)
             {
-                std::tie(rhs_value, operator_value) = BC.returnBCValue(grid, nodeID, quantity, i);
-
-                advection_vector[nodeID] += invD_x[i] * u_values[nodeID] * -rhs_value;
-                advection_vector[nodeID] += invD_y[i] * v_values[nodeID] * -rhs_value;
+                divergence_vector[nodeID] += invD_x[i] * ((2 * u_values[nodeID]) - u_values[neighbors[opposite[i]]]);
+                divergence_vector[nodeID] += invD_y[i] * ((2 * v_values[nodeID]) - v_values[neighbors[opposite[i]]]);
                 ++i;
                 continue;
             }

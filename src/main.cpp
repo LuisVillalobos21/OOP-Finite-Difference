@@ -52,8 +52,8 @@ std::vector<std::vector<double>> collectResults(std::vector<double>& x, std::vec
 
 int main()
 {
-	double dx = 0.01;
-	double dy = 0.01;
+	double dx = 0.0025;
+	double dy = 0.0025;
 	double start_x = 0.0;
 	double end_x = 1.0;
 	double start_y = 0.0;
@@ -122,13 +122,12 @@ int main()
 		pressure
 	);
 
-	Gradient2Order grad2(grid);
+	Divergence2Order div2(grid);
 
-	std::vector<double> gradX;
-	std::vector<double> gradY;
-	std::tie(gradX, gradY) = grad2.calculateOperator(grid, connect, bc_struct_vector, pressure);
+	std::vector<double> div_vec;
+	div_vec = div2.calculateOperator(grid, connect, bc_struct_vector, u_velocity, v_velocity);
 
-	std::vector<std::vector<double>> results = collectResults(grid.X, grid.Y, gradY);
+	std::vector<std::vector<double>> results = collectResults(grid.X, grid.Y, div_vec);
 
 	csvOut(results, "results.csv");
 
