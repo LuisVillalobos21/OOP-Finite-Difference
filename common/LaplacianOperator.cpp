@@ -89,7 +89,8 @@ void LaplacianOperator::applyBoundaryCondition(Grid& grid, Connectivity& connect
         int i = 0;
         for (const auto& neighborID : neighbors)
         {
-            if (neighborID == BC.boundary_flag) {
+            if (neighborID == BC.boundary_flag) 
+            {
                 std::tie(rhs_value, operator_value) = BC.returnBCValue(grid, nodeID, function_values, i);
 
                 rhs_vector[nodeID] += invD[i] * rhs_value;

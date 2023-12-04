@@ -25,5 +25,5 @@ add_executable(
 	"common/Connectivity.cpp" 
 	"common/LaplacianOperator.cpp"
 	"common/ConjugateGradient.cpp" 
-	"common/BoundaryCondition.cpp")
+	"common/BoundaryCondition.cpp" "common/Gradient2Order.cpp")
 
