@@ -98,10 +98,8 @@ void Gradient2Order::applyBoundaryCondition(Grid& grid, Connectivity& connect, c
             {
                 //std::tie(rhs_value, operator_value) = BC.returnBCValue(grid, nodeID, function_values, i);
 
-                //gradient_vector_x[nodeID] += sign[i] * invD_x[i] * (2 * function_values[nodeID]) + sign_opp[i] * invD_x[i] * function_values[neighbors[opposite[i]]];
+                gradient_vector_x[nodeID] += invD_x[i] * ((2 * function_values[nodeID]) - function_values[neighbors[opposite[i]]]);
                 gradient_vector_y[nodeID] += invD_y[i] * ((2 * function_values[nodeID]) - function_values[neighbors[opposite[i]]]);
-                //gradient_vector_x[nodeID] += gradient_vector_x[neighbors[opposite[i]]];
-                //gradient_vector_y[nodeID] += gradient_vector_y[neighbors[opposite[i]]];
                 ++i;
                 continue;
             }
