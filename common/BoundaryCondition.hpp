@@ -32,3 +32,11 @@ struct BoundaryCondition {
     BoundaryCondition(IBoundaryCondition* strategy, int flag);
     std::pair<double, double> returnBCValue(Grid& grid, int nodeID, const std::vector<double>& function_values, int neighbor);
 };
+
+
+enum class BoundaryConditionType {
+    Dirichlet,
+    Neumann
+};
+
+BoundaryCondition makeBoundaryCondition(BoundaryConditionType type, double value, int flag);

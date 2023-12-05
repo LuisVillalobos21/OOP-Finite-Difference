@@ -25,3 +25,22 @@ std::pair<double, double> BoundaryCondition::returnBCValue(Grid& grid, int nodeI
 {
     return strategy->returnBCValue(grid, nodeID, function_values, neighbor);
 }
+
+BoundaryCondition makeBoundaryCondition(BoundaryConditionType type, double value, int flag) 
+{
+    IBoundaryCondition* condition = nullptr;
+
+    switch (type) 
+    {
+    case BoundaryConditionType::Dirichlet:
+        condition = new DirichletCondition(value, flag);
+        break;
+    case BoundaryConditionType::Neumann:
+        condition = new NeumannCondition(value, flag);
+        break;
+    default:
+        throw std::invalid_argument("Unknown Boundary Condition Type");
+    }
+
+    return BoundaryCondition(condition, flag);
+}

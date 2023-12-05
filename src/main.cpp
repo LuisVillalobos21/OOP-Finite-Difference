@@ -3,6 +3,7 @@
 #include "GenericOperator.hpp"
 #include "ConjugateGradient.hpp"
 #include "BoundaryCondition.hpp"
+#include "AssmbleLHS.hpp"
 
 std::vector<double> rhsForcing(const Grid& grid, const Connectivity& connect)
 {
@@ -52,8 +53,8 @@ std::vector<std::vector<double>> collectResults(std::vector<double>& x, std::vec
 
 int main()
 {
-	double dx = 0.0025;
-	double dy = 0.0025;
+	double dx = 0.01;
+	double dy = 0.01;
 	double start_x = 0.0;
 	double end_x = 1.0;
 	double start_y = 0.0;
@@ -74,60 +75,62 @@ int main()
 
 	Connectivity connect(grid);
 
-	LaplacianOperator laplace(grid);
+	// Creation of boundary condition struct vectors for u,v,pressure
+	BoundaryCondition u_wall_boundary = makeBoundaryCondition(BoundaryConditionType::Dirichlet, 0.0, -1);
+	BoundaryCondition u_move_wall_boundary = makeBoundaryCondition(BoundaryConditionType::Dirichlet, 1.0, -2); 
 
-	// Create a Dirichlet boundary condition
-	double dirichletValue = -1.0; 
-	int dirichletFlag = -1; 
-	DirichletCondition dirichletCondition(dirichletValue, dirichletFlag);
-	BoundaryCondition boundaryCondition(&dirichletCondition, dirichletFlag);
+	BoundaryCondition v_wall_boundary1 = makeBoundaryCondition(BoundaryConditionType::Dirichlet, 0.0, -1);
+	BoundaryCondition v_wall_boundary2 = makeBoundaryCondition(BoundaryConditionType::Dirichlet, 0.0, -2);
 
-	//double dirichletValue2 = -2.0;
-	//int dirichletFlag2 = -2;
-	//DirichletCondition dirichletCondition2(dirichletValue2, dirichletFlag2);
-	//BoundaryCondition boundaryCondition2(&dirichletCondition2, dirichletFlag2);
+	BoundaryCondition p_wall_boundary_1 = makeBoundaryCondition(BoundaryConditionType::Neumann, 0.0, -1); 
+	BoundaryCondition p_wall_boundary_2 = makeBoundaryCondition(BoundaryConditionType::Neumann, 0.0, -2);
 
-	//Create a Neumann boundary condition
-	double neumannValue = 0.1; 
-	int neumannFlag = -2; 
-	NeumannCondition neumannCondition(neumannValue, neumannFlag);
-	BoundaryCondition boundaryCondition2(&neumannCondition, neumannFlag);
+	std::vector<BoundaryCondition> u_bc_struct_vector;
+	std::vector<BoundaryCondition> v_bc_struct_vector;
+	std::vector<BoundaryCondition> p_bc_struct_vector;
 
-	std::vector<BoundaryCondition> bc_struct_vector;
-	bc_struct_vector.push_back(boundaryCondition);
-	bc_struct_vector.push_back(boundaryCondition2);
+	u_bc_struct_vector.push_back(u_wall_boundary);
+	u_bc_struct_vector.push_back(u_move_wall_boundary);
+	v_bc_struct_vector.push_back(v_wall_boundary1);
+	v_bc_struct_vector.push_back(v_wall_boundary2);
+	p_bc_struct_vector.push_back(p_wall_boundary_1);
+	p_bc_struct_vector.push_back(p_wall_boundary_2);
 
-	std::vector<double> RHS = rhsForcing(grid, connect);
-	//std::vector<double> RHS;
-	//RHS.resize(grid.num_points, 0.0);
-	for (int i = 0; i < bc_struct_vector.size(); ++i)
+	GenericOperator op(grid);
+
+	//std::vector<double> RHS = rhsForcing(grid, connect);
+	std::vector<double> RHS;
+	RHS.resize(grid.num_points, 0.0);
+	for (int i = 0; i < u_bc_struct_vector.size(); ++i)
 	{
-		laplace.applyBoundaryCondition(grid, connect, connect.boundary_ID, pressure, bc_struct_vector[i]);
+		op.laplace.applyBoundaryCondition(grid, connect, connect.boundary_ID, pressure, u_bc_struct_vector[i]);
 
 		for (int i = 0; i < pressure.size(); ++i)
 		{
-			RHS[i] += laplace.rhs_vector[i];
+			RHS[i] += op.laplace.rhs_vector[i];
 		}
 	}
 
 	double tolerance = 1e-4;
+	AssembleLHS assemblyFunction = laplaceLHS;
 
 	std::vector<double> solution = ConjugateGradient(
-		laplace,
+		assemblyFunction,
 		RHS,
 		tolerance,
 		grid,
 		connect,
-		bc_struct_vector,
+		op,
+		u_bc_struct_vector,
 		pressure
 	);
 
-	Divergence2Order div2(grid);
+	////AdvectionOperator adv(grid);
 
-	std::vector<double> div_vec;
-	div_vec = div2.calculateOperator(grid, connect, bc_struct_vector, u_velocity, v_velocity);
+	////std::vector<double> adv_vec;
+	////adv_vec = adv.calculateOperator(grid, connect, u_bc_struct_vector, u_velocity, v_velocity, u_velocity);
 
-	std::vector<std::vector<double>> results = collectResults(grid.X, grid.Y, div_vec);
+	std::vector<std::vector<double>> results = collectResults(grid.X, grid.Y, solution);
 
 	csvOut(results, "results.csv");
 

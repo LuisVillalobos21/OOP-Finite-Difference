@@ -11,3 +11,4 @@
 #include <Eigen/Dense>
 #include <string>
 #include <utility>
+#include <functional>

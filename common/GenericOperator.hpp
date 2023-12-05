@@ -7,13 +7,14 @@
 
 struct Grid;
 
-struct GenericOperator
+struct GenericOperator 
 {
     LaplacianOperator laplace;
-
     Gradient2Order grad2;
-
     AdvectionOperator advec;
-
     Divergence2Order div;
+
+    GenericOperator(Grid& grid) : laplace(grid), grad2(grid), advec(grid), div(grid) 
+    {
+    }
 };
