@@ -1,31 +1,5 @@
 #include "ConjugateGradient.hpp"
 
-//double dotProduct(std::vector<double>& x, std::vector<double>& y)
-//{
-//    if (x.size() != y.size()) {
-//        throw std::invalid_argument("Vectors must be of the same size");
-//    }
-//
-//    double dotProduct = 0.0;
-//    for (size_t i = 0; i < x.size(); ++i) {
-//        dotProduct += x[i] * y[i];
-//    }
-//
-//    return dotProduct;
-//}
-//
-//void subtractArrays(std::vector<double>& result, const std::vector<double>& lhs, const std::vector<double>& rhs)
-//{
-//    if (lhs.size() != rhs.size()) {
-//        throw std::invalid_argument("Vectors must be of the same size to subtract");
-//    }
-//
-//    for (size_t i = 0; i < lhs.size(); ++i)
-//    {
-//        result[i] = lhs[i] - rhs[i];
-//    }
-//}
-
 std::vector<double> ConjugateGradient(
     AssembleLHS& assembleLHSFunction,
     std::vector<double>& b,
@@ -51,6 +25,11 @@ std::vector<double> ConjugateGradient(
     {
         q = assembleLHSFunction(grid, connect, BC_struct_vector, op, d);
 
+        if (dotProduct(d, q) == 0.0) {
+            std::cout << "Early termination: dot product of d and q is zero.\n";
+            return x;
+        }
+
         double alpha = delta_new / dotProduct(d, q);
 
         for (size_t j = 0; j < x.size(); ++j)
@@ -73,7 +52,7 @@ std::vector<double> ConjugateGradient(
         delta_old = delta_new;
         delta_new = dotProduct(r, r);
 
-        std::cout << "Iteration " << i + 1 << ", Residual norm: " << sqrt(delta_new) << std::endl;
+        //std::cout << "Iteration " << i + 1 << ", Residual norm: " << sqrt(delta_new) << std::endl;
 
         if (sqrt(delta_new) < tolerance)
         {
@@ -89,6 +68,11 @@ std::vector<double> ConjugateGradient(
         }
 
         ++i; 
+    }
+
+    if (i == b.size() - 2)
+    {
+        std::cout << "CONJ GRAD FAILED TO CONVERGE IN TOTAL # OF CELL ITERATIONS" << '\n';
     }
 
     return x;

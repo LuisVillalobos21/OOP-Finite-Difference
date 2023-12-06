@@ -4,6 +4,7 @@
 #include "ConjugateGradient.hpp"
 #include "BoundaryCondition.hpp"
 #include "AssmbleLHS.hpp"
+#include "ArrayOperations.hpp"
 
 std::vector<double> rhsForcing(const Grid& grid, const Connectivity& connect)
 {
@@ -53,15 +54,15 @@ std::vector<std::vector<double>> collectResults(std::vector<double>& x, std::vec
 
 int main()
 {
-	double dx = 0.01;
-	double dy = 0.01;
+	double dx = 0.025;
+	double dy = 0.025;
 	double start_x = 0.0;
 	double end_x = 1.0;
 	double start_y = 0.0;
 	double end_y = 1.0;
-
-	double dt = 0.01;
-	double nu = 0.0000009516; // water at 72 f
+	 
+	double dt = 0.0000001; 
+	double nu = .01; 
 
 	Grid grid(start_x, end_x, start_y, end_y, dx, dy, dt, nu);
 
@@ -98,39 +99,110 @@ int main()
 
 	GenericOperator op(grid);
 
-	//std::vector<double> RHS = rhsForcing(grid, connect);
-	std::vector<double> RHS;
-	RHS.resize(grid.num_points, 0.0);
-	for (int i = 0; i < u_bc_struct_vector.size(); ++i)
-	{
-		op.laplace.applyBoundaryCondition(grid, connect, connect.boundary_ID, pressure, u_bc_struct_vector[i]);
+	AssembleLHS assemblyFunction_Laplace = laplaceLHS;
+	AssembleLHS assemblyFunction_Roperator = R_LHS;
 
-		for (int i = 0; i < pressure.size(); ++i)
+	std::vector<double> u_fractional(grid.num_points, 0.0);
+	std::vector<double> v_fractional(grid.num_points, 0.0);
+	std::vector<double> p_corrected(grid.num_points, 0.0);
+
+	std::vector<double> S_operator(grid.num_points, 0.0);
+	std::vector<double> RHS(grid.num_points, 0.0);
+
+	double tolerance = 1e-4;
+	int num_iter = 200;
+
+	// START OF NAVIER STOKES SOLVE LOOP
+	for (int k = 0; k < num_iter; ++k)
+	{
+		std::cout << "*********** CURRENT ITERATION: " << k << "************" << '\n';
+		// U FRACTIONAL VELOCITY CALCULATION 
+
+		op.advec.calculateOperator(grid, connect, u_bc_struct_vector, u_velocity, v_velocity, u_velocity);
+		op.laplace.calculateOperator(grid, connect, u_bc_struct_vector, u_velocity);
+
+		for (int i = 0; i < grid.num_points; ++i)
 		{
-			RHS[i] += op.laplace.rhs_vector[i];
+			op.laplace.rhs_vector[i] = grid.dt * grid.nu * op.laplace.rhs_vector[i];
+			op.advec.advection_vector[i] = grid.dt * op.advec.advection_vector[i];
+			S_operator[i] = u_velocity[i] + 0.5 * grid.dt * grid.nu * op.laplace.laplace_vector[i];
+			RHS[i] = S_operator[i] + op.advec.advection_vector[i] - op.laplace.rhs_vector[i];
+		}
+
+		std::cout << "*********** Solving U fractional! ************" << '\n';
+		u_fractional = ConjugateGradient(
+			assemblyFunction_Roperator,
+			RHS,
+			tolerance,
+			grid,
+			connect,
+			op,
+			u_bc_struct_vector,
+			u_velocity
+		);
+
+		// V FRACTIONAL VELOCITY CALCULATION 
+
+		op.advec.calculateOperator(grid, connect, v_bc_struct_vector, u_velocity, v_velocity, v_velocity);
+		op.laplace.calculateOperator(grid, connect, v_bc_struct_vector, v_velocity);
+
+		for (int i = 0; i < grid.num_points; ++i)
+		{
+			op.laplace.rhs_vector[i] = grid.dt * grid.nu * op.laplace.rhs_vector[i];
+			op.advec.advection_vector[i] = grid.dt * op.advec.advection_vector[i];
+			S_operator[i] = v_velocity[i] + 0.5 * grid.dt * grid.nu * op.laplace.laplace_vector[i];
+			RHS[i] = S_operator[i] + op.advec.advection_vector[i] - op.laplace.rhs_vector[i];
+		}
+
+		std::cout << "*********** Solving V fractional! ************" << '\n';
+		v_fractional = ConjugateGradient(
+			assemblyFunction_Roperator,
+			RHS,
+			tolerance,
+			grid,
+			connect,
+			op,
+			v_bc_struct_vector,
+			v_velocity
+		);
+
+		// PRESSURE CALCULATION
+
+		op.laplace.calculateOperator(grid, connect, p_bc_struct_vector, pressure);
+
+		op.div.calculateOperator(grid, connect, p_bc_struct_vector, u_fractional, v_fractional);
+
+		for (int i = 0; i < grid.num_points; ++i)
+		{
+			op.laplace.rhs_vector[i] = (1 / grid.dt) * op.laplace.rhs_vector[i];
+			op.div.divergence_vector[i] = -(1 / grid.dt) * op.div.divergence_vector[i];
+			RHS[i] = op.div.divergence_vector[i] + op.laplace.rhs_vector[i];
+		}
+
+		std::cout << "*********** Solving P fractional! ************" << '\n';
+		p_corrected = ConjugateGradient(
+			assemblyFunction_Laplace,
+			RHS,
+			tolerance,
+			grid,
+			connect,
+			op,
+			p_bc_struct_vector,
+			pressure
+		);
+
+		// CORRECT VELOCITY CALCULATION
+
+		op.grad2.calculateOperator(grid, connect, p_bc_struct_vector, p_corrected); // bc vector is dummy placeholder
+
+		for (int i = 0; i < grid.num_points; ++i)
+		{
+			u_velocity[i] = u_fractional[i] - grid.dt * op.grad2.gradient_vector_x[i];
+			v_velocity[i] = v_fractional[i] - grid.dt * op.grad2.gradient_vector_y[i];
 		}
 	}
 
-	double tolerance = 1e-4;
-	AssembleLHS assemblyFunction = laplaceLHS;
-
-	std::vector<double> solution = ConjugateGradient(
-		assemblyFunction,
-		RHS,
-		tolerance,
-		grid,
-		connect,
-		op,
-		u_bc_struct_vector,
-		pressure
-	);
-
-	////AdvectionOperator adv(grid);
-
-	////std::vector<double> adv_vec;
-	////adv_vec = adv.calculateOperator(grid, connect, u_bc_struct_vector, u_velocity, v_velocity, u_velocity);
-
-	std::vector<std::vector<double>> results = collectResults(grid.X, grid.Y, solution);
+	std::vector<std::vector<double>> results = collectResults(grid.X, grid.Y, p_corrected);
 
 	csvOut(results, "results.csv");
 

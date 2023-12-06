@@ -25,3 +25,15 @@ void subtractArrays(std::vector<double>& result, const std::vector<double>& lhs,
         result[i] = lhs[i] - rhs[i];
     }
 }
+
+void addArrays(std::vector<double>& result, const std::vector<double>& lhs, const std::vector<double>& rhs)
+{
+    if (lhs.size() != rhs.size()) {
+        throw std::invalid_argument("Vectors must be of the same size to subtract");
+    }
+
+    for (size_t i = 0; i < lhs.size(); ++i)
+    {
+        result[i] = lhs[i] + rhs[i];
+    }
+}

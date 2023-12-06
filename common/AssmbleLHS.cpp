@@ -17,14 +17,13 @@ std::vector<double> R_LHS(
 	GenericOperator& op,
 	std::vector<double>& x)
 {
-	std::vector<double> result(grid.num_points,0.0);
 	std::vector<double> laplace = op.laplace.calculateOperator(grid, connect, BC_vector, x);
 	for (int i = 0; i < laplace.size(); ++i)
 	{
 		laplace[i] = 0.5 * grid.dt * grid.nu * laplace[i];
 	}
 
-	subtractArrays(result, x, laplace);
+	subtractArrays(x, x, laplace);
 
-	return result;
+	return x;
 }
