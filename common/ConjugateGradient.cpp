@@ -8,13 +8,16 @@ std::vector<double> ConjugateGradient(
     Connectivity& connect,
     GenericOperator& op,
     std::vector<BoundaryCondition>& BC_struct_vector,
-    std::vector<double>& x) 
+    std::vector<double>& x,
+    double pin_option) 
 {
     std::vector<double> r;
     std::vector<double> q;
     r.resize(grid.num_points);
     q.resize(grid.num_points);
+    //if (pin_option == 1) { b[0] = 0; }
     subtractArrays(r, b, assembleLHSFunction(grid, connect, BC_struct_vector, op, x));
+    //if (pin_option == 1) { r[0] = 0; }
     std::vector<double> d = r;
     double delta_new = dotProduct(r, r);
     double delta_0 = delta_new;
@@ -24,6 +27,8 @@ std::vector<double> ConjugateGradient(
     while (i < b.size())
     {
         q = assembleLHSFunction(grid, connect, BC_struct_vector, op, d);
+
+        //if (pin_option == 1) { q[0] = 0; }
 
         if (dotProduct(d, q) == 0.0) {
             std::cout << "Early termination: dot product of d and q is zero.\n";
@@ -56,8 +61,8 @@ std::vector<double> ConjugateGradient(
 
         if (sqrt(delta_new) < tolerance)
         {
-            std::cout << "Converged! Tolerance is below: " << tolerance << '\n';
-            break;
+            //std::cout << "CONVERGED! Tolerance is below: " << tolerance << '\n';
+            return x;
         }
 
         double beta = delta_new / delta_old;
@@ -69,11 +74,7 @@ std::vector<double> ConjugateGradient(
 
         ++i; 
     }
-
-    if (i == b.size() - 2)
-    {
-        std::cout << "CONJ GRAD FAILED TO CONVERGE IN TOTAL # OF CELL ITERATIONS" << '\n';
-    }
+    std::cout << "CONJ GRAD FAILED TO CONVERGE IN TOTAL # OF CELL ITERATIONS " << "Residual = " << sqrt(delta_new) << '\n';
 
     return x;
 }

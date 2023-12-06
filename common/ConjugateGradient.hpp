@@ -12,5 +12,6 @@ std::vector<double> ConjugateGradient(
     Connectivity& connect,
     GenericOperator& op,
     std::vector<BoundaryCondition>& BC_struct_vector,
-    std::vector<double>& function_values);
+    std::vector<double>& function_values,
+    double pin_option);
 

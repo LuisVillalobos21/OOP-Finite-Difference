@@ -75,7 +75,7 @@ void LaplacianOperator::calculateBoundaryPoints(Grid& grid, Connectivity& connec
 
 void LaplacianOperator::applyBoundaryCondition(Grid& grid, Connectivity& connect, const std::vector<int>& nodeIDs, std::vector<double>& function_values, BoundaryCondition& BC)
 {
-    std::fill(rhs_vector.begin(), rhs_vector.end(), 0.0);
+    //std::fill(rhs_vector.begin(), rhs_vector.end(), 0.0);
     double invdx2 = 1.0 / (grid.dx * grid.dx);
     double invdy2 = 1.0 / (grid.dy * grid.dy);
     std::vector<double> invD = { invdx2, invdx2, invdy2, invdy2 };

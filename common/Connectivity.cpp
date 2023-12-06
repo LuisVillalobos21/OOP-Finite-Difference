@@ -202,8 +202,8 @@ void Connectivity::constructNeighborIDs(Grid& grid)
 	{
 		std::vector<int> neighbors;							// bot right corner
 		neighbors.push_back(ID_matrix[i][j - 1]);
-		neighbors.push_back(-1);
-		neighbors.push_back(-1);
+		neighbors.push_back(-3);
+		neighbors.push_back(-3);
 		neighbors.push_back(ID_matrix[i + 1][j]);
 
 		int currentNode = ID_matrix[i][j];
