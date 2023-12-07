@@ -16,7 +16,8 @@ struct Divergence2Order
 	
 	    std::vector<double> calculateOperator(Grid& grid,
 	        Connectivity& connect,
-	        std::vector<BoundaryCondition>& BC_vector,
+	        std::vector<BoundaryCondition>& u_BC_vector,
+			std::vector<BoundaryCondition>& v_BC_vector,
 	        std::vector<double>& u_values,
 	        std::vector<double>& v_values);
 	
@@ -30,10 +31,11 @@ struct Divergence2Order
 	        std::vector<double>& u_values,
 	        std::vector<double>& v_values);
 	
-	    void applyBoundaryCondition(Grid& grid,
-	        Connectivity& connect,
-	        const std::vector<int>& nodeIDs,
-	        std::vector<double>& u_values,
-	        std::vector<double>& v_values,
-	        BoundaryCondition& BC);
+		void applyBoundaryCondition(Grid& grid,
+			Connectivity& connect,
+			const std::vector<int>& nodeIDs,
+			std::vector<double>& u_values,
+			std::vector<double>& v_values,
+			BoundaryCondition& u_BC_vector,
+			BoundaryCondition& v_BC_vector);
 };
