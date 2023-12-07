@@ -6,7 +6,7 @@
 #include "AssmbleLHS.hpp"
 #include "ArrayOperations.hpp"
 
-std::vector<double> rhsForcing(const Grid& grid, const Connectivity& connect)
+std::vector<double> rhsForcing1(const Grid& grid, const Connectivity& connect)
 {
 	std::vector<double> rhs(grid.num_points, 0.0);
 
@@ -14,7 +14,24 @@ std::vector<double> rhsForcing(const Grid& grid, const Connectivity& connect)
 	{
 		double x = grid.X[currentID];
 		double y = grid.Y[currentID];
-		double value = -std::exp(-((x - 0.5) * (x - 0.5) + (y - 0.5) * (y - 0.5)) / (2 * 0.1 * 0.1));
+		//double value = -std::exp(-((x - 0.5) * (x - 0.5) + (y - 0.5) * (y - 0.5)) / (2 * 0.1 * 0.1));
+		double value = 2 * x;
+		rhs[currentID] = value;
+	}
+
+	return rhs;
+}
+
+std::vector<double> rhsForcing2(const Grid& grid, const Connectivity& connect)
+{
+	std::vector<double> rhs(grid.num_points, 0.0);
+
+	for (auto& currentID : connect.ID_vector)
+	{
+		double x = grid.X[currentID];
+		double y = grid.Y[currentID];
+		//double value = -std::exp(-((x - 0.5) * (x - 0.5) + (y - 0.5) * (y - 0.5)) / (2 * 0.1 * 0.1));
+		double value = 4 * y;
 		rhs[currentID] = value;
 	}
 
@@ -56,8 +73,8 @@ std::vector<std::vector<double>> collectResults(std::vector<double>& x, std::vec
 
 int main()
 {
-	double dx = 0.05;
-	double dy = 0.05;
+	double dx = 0.02;
+	double dy = 0.02;
 	double start_x = 0.0;
 	double end_x = 1.0;
 	double start_y = 0.0;
@@ -66,28 +83,22 @@ int main()
 	double dt = 0.01; 
 	double nu = .01; 
 
+	double u_lid = 1;
+
 	Grid grid(start_x, end_x, start_y, end_y, dx, dy, dt, nu);
-
-	std::vector<double> u_velocity;
-	std::vector<double> v_velocity;
-	std::vector<double> pressure;
-
-	u_velocity.resize(grid.num_points, 0.0);
-	v_velocity.resize(grid.num_points, 0.0);
-	pressure.resize(grid.num_points, 0.0);
 
 	Connectivity connect(grid);
 
 	// Creation of boundary condition struct vectors for u,v,pressure
 	BoundaryCondition u_wall_boundary = makeBoundaryCondition(BoundaryConditionType::Dirichlet, 0.0, -1);
-	BoundaryCondition u_move_wall_boundary = makeBoundaryCondition(BoundaryConditionType::Dirichlet, 1.0, -2); 
+	BoundaryCondition u_move_wall_boundary = makeBoundaryCondition(BoundaryConditionType::Dirichlet, u_lid, -2); 
 	BoundaryCondition u_wall_boundary3 = makeBoundaryCondition(BoundaryConditionType::Dirichlet, 0.0, -3);
 
 	BoundaryCondition v_wall_boundary1 = makeBoundaryCondition(BoundaryConditionType::Dirichlet, 0.0, -1);
 	BoundaryCondition v_wall_boundary2 = makeBoundaryCondition(BoundaryConditionType::Dirichlet, 0.0, -2);
 	BoundaryCondition v_wall_boundary3 = makeBoundaryCondition(BoundaryConditionType::Dirichlet, 0.0, -3);
 
-	BoundaryCondition p_wall_boundary_1 = makeBoundaryCondition(BoundaryConditionType::Neumann, 0.0, -1); 
+	BoundaryCondition p_wall_boundary_1 = makeBoundaryCondition(BoundaryConditionType::Neumann, 0.0, -1);
 	BoundaryCondition p_wall_boundary_2 = makeBoundaryCondition(BoundaryConditionType::Neumann, 0.0, -2);
 	BoundaryCondition p_wall_boundary_3 = makeBoundaryCondition(BoundaryConditionType::Dirichlet, 0.0, -3);
 
@@ -108,6 +119,14 @@ int main()
 	GenericOperator op(grid);
 	GenericOperator op2(grid);
 
+	std::vector<double> u_velocity;
+	std::vector<double> v_velocity;
+	std::vector<double> pressure;
+
+	u_velocity.resize(grid.num_points, 0.0);
+	v_velocity.resize(grid.num_points, 0.0);
+	pressure.resize(grid.num_points, 0.0);
+
 	AssembleLHS assemblyFunction_Laplace = laplaceLHS;
 	AssembleLHS assemblyFunction_Roperator = R_LHS;
 
@@ -122,76 +141,97 @@ int main()
 	std::vector<double> RHS(grid.num_points, 0.0);
 
 	double tolerance = 1e-4;
-	int num_iter = 5;
+	int max_num_iter = 1500;
 
 	// START OF NAVIER STOKES SOLVE LOOP
-	for (int k = 0; k < num_iter; ++k)
+	for (int k = 0; k < max_num_iter; ++k)
 	{
-		
-		//std::cout << "*********** CURRENT ITERATION: " << k + 1 << " ************" << '\n';
 		// U FRACTIONAL VELOCITY CALCULATION 
 
+		//op.advec.calculateOperator(grid, connect, u_bc_struct_vector, u_velocity, v_velocity, u_velocity);
+		//op2.advec.calculateOperator(grid, connect, u_bc_struct_vector, u_old, v_old, u_old);
+		//op.laplace.calculateOperator(grid, connect, u_bc_struct_vector, u_velocity);
+		//op2.laplace.calculateOperator(grid, connect, u_bc_struct_vector, u_velocity);
+
+		//for (int i = 0; i < grid.num_points; ++i)
+		//{
+		//	op.laplace.rhs_vector[i] = grid.dt * grid.nu * op.laplace.rhs_vector[i];
+		//	op.advec.advection_vector[i] = 1.5 * grid.dt * op.advec.advection_vector[i];
+		//	op2.advec.advection_vector[i] = -0.5 * grid.dt * op2.advec.advection_vector[i];
+		//	//op.advec.advection_vector[i] = grid.dt * op.advec.advection_vector[i];
+		//	S_operator[i] = u_velocity[i] + 0.5 * grid.dt * grid.nu * op2.laplace.laplace_vector[i];
+		//	RHS[i] = S_operator[i] + /*op.advec.advection_vector[i] + op2.advec.advection_vector[i]*/ - op.laplace.rhs_vector[i];
+		//}
+
+		//u_fractional = ConjugateGradient(
+		//	assemblyFunction_Roperator,
+		//	RHS,
+		//	tolerance,
+		//	grid,
+		//	connect,
+		//	op,
+		//	u_bc_struct_vector,
+		//	u_velocity, 2
+		//);
+
+		op.laplace.calculateOperator(grid, connect, u_bc_struct_vector, u_velocity);
 		op.advec.calculateOperator(grid, connect, u_bc_struct_vector, u_velocity, v_velocity, u_velocity);
 		op2.advec.calculateOperator(grid, connect, u_bc_struct_vector, u_velocity, v_velocity, u_old);
-		op.laplace.calculateOperator(grid, connect, u_bc_struct_vector, u_velocity);
 
-		for (int i = 0; i < grid.num_points; ++i)
+		for (int i = 1; i < grid.num_points; ++i)
 		{
-			op.laplace.rhs_vector[i] = grid.dt * grid.nu * op.laplace.rhs_vector[i];
-			op.advec.advection_vector[i] = 1.5 * grid.dt * op.advec.advection_vector[i];
-			op2.advec.advection_vector[i] = -0.5 * grid.dt * op2.advec.advection_vector[i];
-			S_operator[i] = u_velocity[i] + 0.5 * grid.dt * grid.nu * op.laplace.laplace_vector[i];
-			RHS[i] = S_operator[i] + op.advec.advection_vector[i] + op2.advec.advection_vector[i] - op.laplace.rhs_vector[i];
+			RHS[i] = u_velocity[i] + grid.dt * grid.nu * (1.5 * op.advec.advection_vector[i] - 0.5 * op2.advec.advection_vector[i]) + // MULTIPLYING ADVECTION BY NU GIVES BETTER AGREEMENT!!!!
+										grid.dt * grid.nu * (op.laplace.laplace_vector[i] - op.laplace.rhs_vector[i]);
+			u_fractional[i] = RHS[i];
 		}
-
-		//std::cout << "Solving U fractional!" << '\n';
-		u_fractional = ConjugateGradient(
-			assemblyFunction_Roperator,
-			RHS,
-			tolerance,
-			grid,
-			connect,
-			op,
-			u_bc_struct_vector,
-			u_velocity, 2
-		);
 
 		// V FRACTIONAL VELOCITY CALCULATION 
 
-		op.advec.calculateOperator(grid, connect, v_bc_struct_vector, u_velocity, v_velocity, v_velocity);
-		op2.advec.calculateOperator(grid, connect, v_bc_struct_vector, u_velocity, v_velocity, v_old);
+		//op.advec.calculateOperator(grid, connect, v_bc_struct_vector, u_velocity, v_velocity, v_velocity);
+		//op2.advec.calculateOperator(grid, connect, v_bc_struct_vector, u_old, v_old, v_old);
+		//op.laplace.calculateOperator(grid, connect, v_bc_struct_vector, v_velocity);
+		//op2.laplace.calculateOperator(grid, connect, v_bc_struct_vector, v_velocity);
+
+		//for (int i = 0; i < grid.num_points; ++i)
+		//{
+		//	op.laplace.rhs_vector[i] = grid.dt * grid.nu * op.laplace.rhs_vector[i];
+		//	op.advec.advection_vector[i] = 1.5 * grid.dt * op.advec.advection_vector[i];
+		//	op2.advec.advection_vector[i] = -0.5 * grid.dt * op2.advec.advection_vector[i];
+		//	op.advec.advection_vector[i] = grid.dt * op.advec.advection_vector[i];
+		//	S_operator[i] = v_velocity[i] + 0.5 * grid.dt * grid.nu * op2.laplace.laplace_vector[i];
+		//	RHS[i] = S_operator[i] + /*op.advec.advection_vector[i] + op2.advec.advection_vector[i]*/ - op.laplace.rhs_vector[i];
+		//}
+
+		//v_fractional = ConjugateGradient(
+		//	assemblyFunction_Roperator,
+		//	RHS,
+		//	tolerance,
+		//	grid,
+		//	connect,
+		//	op,
+		//	v_bc_struct_vector,
+		//	v_velocity, 2
+		//);
+
 		op.laplace.calculateOperator(grid, connect, v_bc_struct_vector, v_velocity);
+		op.advec.calculateOperator(grid, connect, v_bc_struct_vector, u_velocity, v_velocity, v_velocity);
+		op2.advec.calculateOperator(grid, connect, u_bc_struct_vector, u_velocity, v_velocity, v_old);
 
-		for (int i = 0; i < grid.num_points; ++i)
+		for (int i = 1; i < grid.num_points; ++i)
 		{
-			op.laplace.rhs_vector[i] = grid.dt * grid.nu * op.laplace.rhs_vector[i];
-			op.advec.advection_vector[i] = 1.5 * grid.dt * op.advec.advection_vector[i];
-			op2.advec.advection_vector[i] = -0.5 * grid.dt * op2.advec.advection_vector[i];
-			S_operator[i] = v_velocity[i] + 0.5 * grid.dt * grid.nu * op.laplace.laplace_vector[i];
-			RHS[i] = S_operator[i] + op.advec.advection_vector[i] + op.advec.advection_vector[i] - op.laplace.rhs_vector[i];
+			RHS[i] = v_velocity[i] + grid.dt * grid.nu * (1.5 * op.advec.advection_vector[i] - 0.5 * op2.advec.advection_vector[i]) +
+										grid.dt * grid.nu * (op.laplace.laplace_vector[i] - op.laplace.rhs_vector[i]);
+			v_fractional[i] = RHS[i];
 		}
-
-		//std::cout << "Solving V fractional!" << '\n';
-		v_fractional = ConjugateGradient(
-			assemblyFunction_Roperator,
-			RHS,
-			tolerance,
-			grid,
-			connect,
-			op,
-			v_bc_struct_vector,
-			v_velocity, 2
-		);
 
 		// PRESSURE CALCULATION
 
 		op.laplace.calculateOperator(grid, connect, p_bc_struct_vector, pressure);
-
 		op.div.calculateOperator(grid, connect, p_bc_struct_vector, u_fractional, v_fractional);
 
 		for (int i = 0; i < grid.num_points; ++i)
 		{
-			op.laplace.rhs_vector[i] = (1 / grid.dt) * op.laplace.rhs_vector[i];
+			op.laplace.rhs_vector[i] = (1 / grid.dt) * op.laplace.rhs_vector[i];  
 			op.div.divergence_vector[i] = (1 / grid.dt) * op.div.divergence_vector[i];
 			RHS[i] = op.div.divergence_vector[i] + op.laplace.rhs_vector[i];
 		}
@@ -217,8 +257,33 @@ int main()
 
 		for (int i = 0; i < grid.num_points; ++i)
 		{
+			pressure[i] = p_corrected[i];
 			u_velocity[i] = u_fractional[i] - grid.dt * op.grad2.gradient_vector_x[i];
 			v_velocity[i] = v_fractional[i] - grid.dt * op.grad2.gradient_vector_y[i];
+		}
+
+		// CHECK FOR TIME INVARIANT SOLUTION
+
+		double l2Norm = 0.0;
+		double normUold = 0.0;
+
+		for (size_t i = 0; i < u_velocity.size(); ++i) {
+			l2Norm += (u_velocity[i] - u_old[i]) * (u_velocity[i] - u_old[i]);
+			normUold += u_old[i] * u_old[i];
+		}
+
+		l2Norm = std::sqrt(l2Norm);
+		normUold = std::sqrt(normUold);
+		double relative_error_tolerance = 1e-7;
+
+		double relativeError = normUold > 0 ? l2Norm / normUold : l2Norm;
+
+		if (relativeError < relative_error_tolerance) {
+			std::cout << "Relative error below tolerance: " << relativeError << std::endl;
+			break;
+		}
+		else {
+			std::cout << "Time step: "<< k + 1 << " Relative error between steps: " << relativeError << std::endl;
 		}
 	}
 

@@ -97,7 +97,7 @@ void LaplacianOperator::applyBoundaryCondition(Grid& grid, Connectivity& connect
                 laplace_vector[nodeID] += invD[i] * operator_value;
                 ++i;
                 continue;
-                //++i; is this part actually needed
+                ++i;
             }
         }
     }
