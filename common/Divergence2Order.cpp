@@ -112,7 +112,9 @@ void Divergence2Order::applyBoundaryCondition(Grid& grid,
                 std::tie(rhs_value_v, operator_value_v) = v_BC_vector.returnBCValue(grid, nodeID, v_values, i);
 
                 divergence_vector[nodeID] += invD_x[i] * -rhs_value_u;
+                divergence_vector[nodeID] += invD_x[i] * operator_value_u;
                 divergence_vector[nodeID] += invD_y[i] * -rhs_value_v;
+                divergence_vector[nodeID] += invD_y[i] * operator_value_v;
 
                 //divergence_vector[nodeID] += invD_x[i] * ((2 * u_values[nodeID]) - u_values[neighbors[opposite[i]]]);
                 //divergence_vector[nodeID] += invD_y[i] * ((2 * v_values[nodeID]) - v_values[neighbors[opposite[i]]]);

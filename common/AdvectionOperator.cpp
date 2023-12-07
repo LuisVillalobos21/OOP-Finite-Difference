@@ -113,7 +113,9 @@ void AdvectionOperator::applyBoundaryCondition(Grid& grid,
                 std::tie(rhs_value, operator_value) = BC.returnBCValue(grid, nodeID, quantity, i);
 
                 advection_vector[nodeID] += invD_x[i] * u_values[nodeID] * -rhs_value;
+                advection_vector[nodeID] += invD_x[i] * u_values[nodeID] * operator_value;
                 advection_vector[nodeID] += invD_y[i] * v_values[nodeID] * -rhs_value;
+                advection_vector[nodeID] += invD_y[i] * v_values[nodeID] * operator_value;
                 ++i;
                 continue;
             }

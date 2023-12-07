@@ -38,17 +38,17 @@ std::vector<double> ConjugateGradient(
             x[j] += alpha * d[j];
         }
 
-        if (i % 50 == 0) 
-        {
+        //if (i % 50 == 0) 
+        //{
             subtractArrays(r, b, assembleLHSFunction(grid, connect, BC_struct_vector, op, x));
-        }
-        else
-        {
-            for (size_t j = 0; j < r.size(); ++j)
-            {
-                r[j] -= alpha * q[j];
-            }
-        }
+        //}
+        //else
+        //{
+        //    for (size_t j = 0; j < r.size(); ++j)
+        //    {
+        //        r[j] -= alpha * q[j];
+        //    }
+        //}
 
         delta_old = delta_new;
         delta_new = dotProduct(r, r);

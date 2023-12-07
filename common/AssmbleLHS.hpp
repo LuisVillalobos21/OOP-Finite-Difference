@@ -30,4 +30,4 @@ std::vector<double> R_LHS(
 	Connectivity& connect,
 	std::vector<BoundaryCondition>& BC_vector,
 	GenericOperator& op,
-	std::vector<double>& x);
+	std::vector<double> x);
