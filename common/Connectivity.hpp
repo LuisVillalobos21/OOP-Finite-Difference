@@ -29,6 +29,8 @@ struct Connectivity {
 
 	void constructNeighborIDs(Grid& grid);
 
+	void Connectivity::printIDMatrix() const;
+
 	void printIDData(std::vector<int> x);
 
 	void Connectivity::printNeighborIDs();

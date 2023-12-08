@@ -6,38 +6,6 @@
 #include "AssmbleLHS.hpp"
 #include "ArrayOperations.hpp"
 
-std::vector<double> rhsForcing1(const Grid& grid, const Connectivity& connect)
-{
-	std::vector<double> rhs(grid.num_points, 0.0);
-
-	for (auto& currentID : connect.ID_vector)
-	{
-		double x = grid.X[currentID];
-		double y = grid.Y[currentID];
-		//double value = -std::exp(-((x - 0.5) * (x - 0.5) + (y - 0.5) * (y - 0.5)) / (2 * 0.1 * 0.1));
-		double value = 2 * x;
-		rhs[currentID] = value;
-	}
-
-	return rhs;
-}
-
-std::vector<double> rhsForcing2(const Grid& grid, const Connectivity& connect)
-{
-	std::vector<double> rhs(grid.num_points, 0.0);
-
-	for (auto& currentID : connect.ID_vector)
-	{
-		double x = grid.X[currentID];
-		double y = grid.Y[currentID];
-		//double value = -std::exp(-((x - 0.5) * (x - 0.5) + (y - 0.5) * (y - 0.5)) / (2 * 0.1 * 0.1));
-		double value = 4 * y;
-		rhs[currentID] = value;
-	}
-
-	return rhs;
-}
-
 void csvOut(const std::vector<std::vector<double>>& results, const std::string& filename)
 {
 	std::ofstream outFile(filename);
@@ -73,26 +41,28 @@ std::vector<std::vector<double>> collectResults(std::vector<double>& x, std::vec
 
 int main()
 {
-	double dx = 0.025;
-	double dy = 0.025;
+	double dx = 0.0078125;
+	double dy = 0.0078125;
 	double start_x = 0.0;
-	double end_x = 4.0;
+	double end_x = 1.0;
 	double start_y = 0.0;
 	double end_y = 1.0;
 	 
-	double dt = 0.01; 
+	double dt = 0.001; 
 	double nu = .01; 
 
-	double u_lid = .01;
+	double u_lid = 1;
 
 	Grid grid(start_x, end_x, start_y, end_y, dx, dy, dt, nu);
 
 	Connectivity connect(grid);
 
+	//connect.printIDMatrix();
+
 	// Creation of boundary condition struct vectors for u,v,pressure
 	BoundaryCondition u_wall_boundary = makeBoundaryCondition(BoundaryConditionType::Dirichlet, 0.0, -1);
 	BoundaryCondition u_move_wall_boundary = makeBoundaryCondition(BoundaryConditionType::Dirichlet, u_lid, -2); 
-	BoundaryCondition u_wall_boundary3 = makeBoundaryCondition(BoundaryConditionType::Neumann, 0.0, -3);
+	BoundaryCondition u_wall_boundary3 = makeBoundaryCondition(BoundaryConditionType::Dirichlet, 0.0, -3);
 	std::vector<BoundaryCondition> u_bc_struct_vector;
 	u_bc_struct_vector.push_back(u_wall_boundary);
 	u_bc_struct_vector.push_back(u_move_wall_boundary);
@@ -100,7 +70,7 @@ int main()
 
 	BoundaryCondition v_wall_boundary1 = makeBoundaryCondition(BoundaryConditionType::Dirichlet, 0.0, -1);
 	BoundaryCondition v_wall_boundary2 = makeBoundaryCondition(BoundaryConditionType::Dirichlet, 0.0, -2);
-	BoundaryCondition v_wall_boundary3 = makeBoundaryCondition(BoundaryConditionType::Neumann, 0.0, -3);
+	BoundaryCondition v_wall_boundary3 = makeBoundaryCondition(BoundaryConditionType::Dirichlet, 0.0, -3);
 	std::vector<BoundaryCondition> v_bc_struct_vector;
 	v_bc_struct_vector.push_back(v_wall_boundary1);
 	v_bc_struct_vector.push_back(v_wall_boundary2);
@@ -139,8 +109,8 @@ int main()
 	std::vector<double> RHS(grid.num_points, 0.0);
 	std::vector<double> RHS2(grid.num_points, 0.0);
 
-	double tolerance = 1e-7;
-	int max_num_iter = 10000;
+	double tolerance = 1e-4;
+	int max_num_iter = 500'000;
 
 	// START OF NAVIER STOKES SOLVE LOOP
 	for (int k = 0; k < max_num_iter; ++k)
@@ -251,7 +221,7 @@ int main()
 
 		l2Norm = std::sqrt(l2Norm);
 		normUold = std::sqrt(normUold);
-		double relative_error_tolerance = 1e-7;
+		double relative_error_tolerance = 1e-5;
 
 		double relativeError = normUold > 0 ? l2Norm / normUold : l2Norm;
 

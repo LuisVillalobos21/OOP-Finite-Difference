@@ -131,7 +131,7 @@ void Connectivity::constructNeighborIDs(Grid& grid)
 	for (int i = 1; i < ID_matrix.size() - 1; ++i)		// left solution points 
 	{
 		std::vector<int> neighbors;
-		neighbors.push_back(-2);
+		neighbors.push_back(-1);
 		neighbors.push_back(ID_matrix[i][j + 1]);
 		neighbors.push_back(ID_matrix[i - 1][j]);
 		neighbors.push_back(ID_matrix[i + 1][j]);
@@ -146,7 +146,7 @@ void Connectivity::constructNeighborIDs(Grid& grid)
 	{
 		std::vector<int> neighbors;
 		neighbors.push_back(ID_matrix[i][j - 1]);
-		neighbors.push_back(-3);
+		neighbors.push_back(-1);
 		neighbors.push_back(ID_matrix[i - 1][j]);
 		neighbors.push_back(ID_matrix[i + 1][j]);
 
@@ -176,7 +176,7 @@ void Connectivity::constructNeighborIDs(Grid& grid)
 		neighbors.push_back(ID_matrix[i][j - 1]);
 		neighbors.push_back(ID_matrix[i][j + 1]);
 		neighbors.push_back(ID_matrix[i - 1][j]);
-		neighbors.push_back(-1);
+		neighbors.push_back(-2);
 
 		int currentNode = ID_matrix[i][j];
 
@@ -187,9 +187,9 @@ void Connectivity::constructNeighborIDs(Grid& grid)
 	j = 0;
 	{
 		std::vector<int> neighbors;							// bot left corner
-		neighbors.push_back(-2);
-		neighbors.push_back(ID_matrix[i][j + 1]);
 		neighbors.push_back(-1);
+		neighbors.push_back(ID_matrix[i][j + 1]);
+		neighbors.push_back(-3);
 		neighbors.push_back(ID_matrix[i + 1][j]);
 
 		int currentNode = ID_matrix[i][j];
@@ -202,7 +202,7 @@ void Connectivity::constructNeighborIDs(Grid& grid)
 	{
 		std::vector<int> neighbors;							// bot right corner
 		neighbors.push_back(ID_matrix[i][j - 1]);
-		neighbors.push_back(-3);
+		neighbors.push_back(-1);
 		neighbors.push_back(-1);
 		neighbors.push_back(ID_matrix[i + 1][j]);
 
@@ -215,10 +215,10 @@ void Connectivity::constructNeighborIDs(Grid& grid)
 	j = 0;
 	{
 		std::vector<int> neighbors;							// top left corner
-		neighbors.push_back(-2);	
+		neighbors.push_back(-1);	
 		neighbors.push_back(ID_matrix[i][j + 1]);
 		neighbors.push_back(ID_matrix[i - 1][j]);
-		neighbors.push_back(-1);
+		neighbors.push_back(-2);
 
 		int currentNode = ID_matrix[i][j];
 
@@ -230,9 +230,9 @@ void Connectivity::constructNeighborIDs(Grid& grid)
 	{
 		std::vector<int> neighbors;							// top right corner
 		neighbors.push_back(ID_matrix[i][j - 1]);
-		neighbors.push_back(-3);
-		neighbors.push_back(ID_matrix[i - 1][j]);
 		neighbors.push_back(-1);
+		neighbors.push_back(ID_matrix[i - 1][j]);
+		neighbors.push_back(-2);
 
 		int currentNode = ID_matrix[i][j];
 
@@ -248,6 +248,19 @@ void Connectivity::printIDData(std::vector<int> x)
 		std::cout << value << '\n';
 	}
 }
+
+void Connectivity::printIDMatrix() const
+{
+	for (const auto& row : ID_matrix)
+	{
+		for (int val : row)
+		{
+			std::cout << val << " ";
+		}
+		std::cout << std::endl;
+	}
+}
+
 
 void Connectivity::printNeighborIDs()
 {
